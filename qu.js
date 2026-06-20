@@ -1434,18 +1434,38 @@
                             reject(error);
                         };
                         break;
-                        
+
                     case 'style':
                         const link = document.createElement('link');
-                        link.rel = 'stylesheet';
+                        element = link; 
+                        link.rel = 'preload';
+                        link.as = 'style';
                         link.href = item;
-                        this._loadedAssets.add(cacheKey);
-                        this._loadingAssets.delete(cacheKey);
+                    
+                        let resolved = false;
+                    
+                        link.onload = () => {
+                            if (resolved) return;
+                            resolved = true;
+                            link.rel = 'stylesheet';
+                            this._loadedAssets.add(cacheKey);
+                            this._loadingAssets.delete(cacheKey);
+                            this.debug(`✅ [Qu] CSS loaded: ${item}`);
+                            this.trigger(global, 'qu:asset:loaded', { detail: { item, type: 'style', id } });
+                            resolve(item);
+                        };
+                    
+                        link.onerror = (error) => {
+                            if (resolved) return;
+                            resolved = true;
+                            this._loadingAssets.delete(cacheKey);
+                            this.debug(`❌ [Qu] CSS failed: ${item}`);
+                            this.trigger(global, 'qu:asset:error', { detail: { item, type: 'style', error, id } });
+                            reject(error);
+                        };
+                    
                         document.head.appendChild(link);
-                        this.debug(`✅ [Qu] CSS added to DOM: ${item}`);
-                        this.trigger(global, 'qu:asset:loaded', { detail: { item, type: 'style', id } });
-                        resolve(item);
-                        return;
+                        break;
                         
                     case 'image':
                         element = new Image();

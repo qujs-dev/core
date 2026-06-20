@@ -76,9 +76,17 @@ if (!window.Que) {
 # Рекомендации
 Использование async/defer‑скриптов в большом количестве требует HTTP/2 (или HTTP/3).
 
-У CDN-серверов HTTP/2-3 включён по умолчанию, но бесплатные CDN не всегда стабильны — поэтому fallback на локальный файл — разумная страховка. А вот для css фалбек к сожалению не сделать без js и повторного запроса.
+У CDN-серверов HTTP/2-3 включён по умолчанию, но бесплатные CDN не всегда стабильны — поэтому fallback на локальный файл — разумная страховка.
 
 ```html
+<link
+  rel="preload"
+  as="style"
+  href="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/css/qu.min.css"
+  onload="this.rel='stylesheet'"
+  onerror="this.onerror=null;this.href='/qu/core/css/qu.min.css';this.rel='stylesheet'"
+>
+
 <script
   src="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/qu.min.js"
   onerror="this.onerror=null;this.src='/qu/core/qu.min.js'" async>
