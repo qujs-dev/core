@@ -1,3 +1,6 @@
++ [[EN] README English](/README.en.md)
++ **[[RU] README Русский](/README.md)**
+
 # Qu.js
 
 - Сайт проекта: [https://qujs.ru/](https://qujs.ru/)
