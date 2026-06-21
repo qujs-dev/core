@@ -90,6 +90,14 @@ if (!window.Que) {
   onerror="this.onerror=null;this.href='/qu/core/css/qu.min.css';this.rel='stylesheet'"
 >
 
+<!-- предпочтительней для рендера, но без фалбека -->
+<link
+    href="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/css/qu.min.css"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'; this.onload=null;"
+>
+
 <script
   src="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/qu.min.js"
   onerror="this.onerror=null;this.src='/qu/core/qu.min.js'" async>
@@ -98,7 +106,7 @@ if (!window.Que) {
 
 На HTTP/1.1 браузеры ограничивают число одновременных соединений к одному домену, и async/defer‑скрипты будут вставать в очередь. На HTTP/2-3 мультиплексирование позволяет загружать все ресурсы параллельно без задержек.
 
-Если сервер работает на HTTP/1.1 и файлы бибилиотеки qu.js расположены физически на нем, использование async/defer не уменьшает количество параллельных загрузок, тогда лучше собирать скрипты в один бандл (устаревший, но надежный способ).
+Если сервер работает на HTTP/1.1 и файлы бибилиотеки qu.js расположены физически на нем, использование async/defer не уменьшает количество параллельных загрузок, тогда лучше собирать скрипты в один бандл (олд-скульный и надежный способ).
 
 # Примеры кода
 `Que` — по умолчанию реагирует на готовность DOM.

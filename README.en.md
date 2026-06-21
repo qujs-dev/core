@@ -107,6 +107,14 @@ CDN servers have HTTP/2–3 enabled by default, but free CDNs are not always sta
   onerror="this.onerror=null;this.href='/qu/core/css/qu.min.css';this.rel='stylesheet'"
 >
 
+<!-- preferable, but without the fallback -->
+<link
+    href="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/css/qu.min.css"
+    rel="stylesheet"
+    media="print"
+    onload="this.media='all'; this.onload=null;"
+>
+
 <script
   src="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.0.0/qu.min.js"
   onerror="this.onerror=null;this.src='/qu/core/qu.min.js'"

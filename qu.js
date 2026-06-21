@@ -556,7 +556,8 @@
 			if (!list || !list.length) return;
 
 			const removeIds = [];
-			const detail = e && e.detail ? e.detail : {};
+			//const detail = e && e.detail ? e.detail : {};
+            const detail = e && ('detail' in e) ? e.detail : {};
 
 			for (let i = 0; i < list.length; i++) {
 				const sub = list[i];
@@ -845,7 +846,7 @@
 				}
 			} */
 
-            const event = new CustomEvent(type, { bubbles, cancelable, composed, detail: { ...detail } });
+            const event = new CustomEvent(type, { bubbles, cancelable, composed, detail: detail });
 
             if (!collect) {
                 const dispatched = element.dispatchEvent(event);
