@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.0.6
+ * Qu v1.0.7
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -246,6 +246,12 @@
 
         _defId: 0,
         _defRefs: new Map(),
+		_pathListeners: new Map(),   // путь → массив активных слушателей
+		_proxyCache: new WeakMap(), // объект → его прокси-обёртка
+		_rootDefined: new Set(),    // уже обработанные корневые свойства (чтобы не ставить defineProperty повторно)
+		_rootWatchers: new Map(),     // rootVar → { lastValue, listeners: [], intervalId: null }
+		_rootIntervalId: null,        // ID глобального интервала
+		_rootIntervalPeriod: 100,     // период по умолчанию (мс)
         
         defOff: function(ids) {
             if (ids == null) return false;
@@ -272,9 +278,125 @@
         
             return removed;
         },
-        def: function(paths, callback, once = true, mode = true) {
+		
+		// Создаёт прокси для объекта и кеширует его. Рекурсивно оборачивает вложенные объекты.
+		_makeObservable: function(obj, path) {
+			if (this._proxyCache.has(obj)) return this._proxyCache.get(obj);
+			const self = this;
+			const handler = {
+				get(target, prop, receiver) {
+					const value = Reflect.get(target, prop, receiver);
+					if (value && typeof value === 'object') {
+						const newPath = path ? `${path}.${prop}` : prop;
+						const proxied = self._makeObservable(value, newPath);
+						if (proxied !== value) {
+							// замена через простое присваивание – без defineProperty
+							target[prop] = proxied;
+						}
+						return proxied;
+					}
+					return value;
+				},
+				set(target, prop, value, receiver) {
+					const oldValue = target[prop];
+					const result = Reflect.set(target, prop, value, receiver);
+					if (oldValue !== value) {
+						const fullPath = path ? `${path}.${prop}` : prop;
+						if (value && typeof value === 'object') {
+							const proxied = self._makeObservable(value, fullPath);
+							if (proxied !== value) {
+								Reflect.set(target, prop, proxied, receiver);
+							}
+						}
+						self._fireListeners(fullPath, value);
+					}
+					return result;
+				}
+			};
+			const proxy = new Proxy(obj, handler);
+			this._proxyCache.set(obj, proxy);
+			return proxy;
+		},
+
+		// Уведомляет всех активных слушателей по пути
+		_fireListeners: function(path, value) {
+			const listeners = this._pathListeners.get(path);
+			if (!listeners) return;
+			const list = listeners.slice();
+			for (const listener of list) {
+				if (!listener.active) {
+					const idx = listeners.indexOf(listener);
+					if (idx !== -1) listeners.splice(idx, 1);
+					continue;
+				}
+				listener.callback(value);
+				if (!listener.every) {
+					listener.active = false;
+					const idx = listeners.indexOf(listener);
+					if (idx !== -1) listeners.splice(idx, 1);
+					this._defRefs.delete(listener.id);
+				}
+			}
+		},
+		
+		// Запускает глобальный интервал для отслеживания корневого свойства (если ещё не запущен)
+		_startRootInterval: function(rootVar, period) {
+			if (this._rootWatchers.has(rootVar)) return;
+			const self = this;
+			const data = {
+				lastValue: window[rootVar],
+				listeners: []
+			};
+			this._rootWatchers.set(rootVar, data);
+
+			// Если интервал ещё не запущен – запускаем
+			if (!this._rootIntervalId) {
+				this._rootIntervalId = setInterval(function() {
+					for (const [root, watcher] of self._rootWatchers) {
+						const current = window[root];
+						if (current !== watcher.lastValue) {
+							watcher.lastValue = current;
+							// Уведомляем всех слушателей этого пути (путь = rootVar)
+							self._fireListeners(root, current);
+						}
+					}
+				}, period || self._rootIntervalPeriod);
+			}
+		},
+
+		// Останавливает интервал, если больше нет наблюдателей
+		_stopRootInterval: function(rootVar) {
+			const watcher = this._rootWatchers.get(rootVar);
+			if (!watcher) return;
+			if (watcher.listeners.length === 0) {
+				this._rootWatchers.delete(rootVar);
+				if (this._rootWatchers.size === 0 && this._rootIntervalId) {
+					clearInterval(this._rootIntervalId);
+					this._rootIntervalId = null;
+				}
+			}
+		},
+		
+        def: function(paths, callback, once = true, immediate = true, mode = true, options = {}) {
+            if (once && typeof once === 'object' && !Array.isArray(once)) {
+                var opts = once;
+        
+                once = opts.once !== undefined ? !!opts.once : true;
+                immediate = opts.immediate !== undefined ? !!opts.immediate : true;
+                mode = opts.mode !== undefined ? opts.mode : true;
+        
+                options = Object.assign({}, opts);
+                delete options.once;
+                delete options.immediate;
+                delete options.mode;
+            }
+        
             const every = !once;
             const self = this;
+        
+            if (typeof options === 'string' || typeof options === 'number') {
+                options = { watchMode: options };
+            }
         
             const isTrackable = (value) => {
                 return value != null && (typeof value === 'object' || typeof value === 'function');
@@ -282,46 +404,25 @@
         
             const makeListener = (callback, every, list) => {
                 const id = ++self._defId;
-                const listener = {
-                    id,
-                    callback,
-                    every,
-                    active: true
-                };
-        
-                self._defRefs.set(id, {
-                    listener,
-                    list
-                });
-        
+                const listener = { id, callback, every, active: true };
+                self._defRefs.set(id, { listener, list });
                 return listener;
             };
         
             const cleanupListener = (listener, list) => {
                 if (!listener) return;
-        
                 listener.active = false;
-        
-                if (listener.id) {
-                    self._defRefs.delete(listener.id);
-                }
-        
+                if (listener.id) self._defRefs.delete(listener.id);
                 if (list && Array.isArray(list)) {
                     const i = list.indexOf(listener);
-                    if (i !== -1) {
-                        list.splice(i, 1);
-                    }
+                    if (i !== -1) list.splice(i, 1);
                 }
             };
         
             const fireListener = (listener, value, path) => {
                 if (!listener || !listener.active) return false;
-        
                 listener.callback(value);
-                self.trigger(global, 'qu:def:resolve', {
-                    detail: { path, value }
-                });
-        
+                self.trigger(global, 'qu:def:resolve', { detail: { path, value } });
                 return listener.every;
             };
         
@@ -334,9 +435,15 @@
                 const triggered = new Set();
                 const childIds = [];
         
+                const getOptionsForPath = (path) => {
+                    if (typeof options === 'object' && options !== null && options[path]) {
+                        return options[path];
+                    }
+                    return options;
+                };
+        
                 const tryFinish = () => {
                     let ready = false;
-        
                     if (mode) {
                         ready = list.every(p =>
                             window[p] !== undefined ||
@@ -348,42 +455,28 @@
         
                     if (ready && !firedOnce) {
                         if (!every) firedOnce = true;
-        
                         const current = {};
                         list.forEach(p => {
                             current[p] = p.includes('.') ? self._getNested(p) : window[p];
                         });
-        
                         callback(current);
-        
-                        if (every && !mode) {
-                            triggered.clear();
-                        }
-        
-                        if (!every) {
-                            self.defOff(childIds);
-                        }
+                        if (every && !mode) triggered.clear();
+                        if (!every) self.defOff(childIds);
                     }
                 };
         
                 const updateVar = (path) => {
-                    if (!triggered.has(path)) {
-                        triggered.add(path);
-                    }
+                    if (!triggered.has(path)) triggered.add(path);
                     tryFinish();
                 };
         
                 list.forEach((path) => {
-                    const id = self.def(path, () => {
-                        updateVar(path);
-                    }, false);
-        
-                    if (id != null) {
-                        childIds.push(id);
-                    }
+                    const opts = getOptionsForPath(path);
+                    const id = self.def(path, () => updateVar(path), false, immediate, mode, opts);
+                    if (id != null) childIds.push(id);
                 });
         
-                tryFinish();
+                if (immediate) tryFinish();
                 return childIds;
             }
         
@@ -395,134 +488,232 @@
             const rootVar = parts[0];
             const restPath = parts.slice(1);
         
-            // --- Случай 1: простая переменная ---
-            if (restPath.length === 0) {
-                if (!self._defStore) self._defStore = {};
+            const pathOptions = (typeof options === 'object' && options !== null && options[varName])
+                ? options[varName]
+                : options;
         
-                if (!self._defStore[rootVar]) {
-                    const data = {
-                        value: window[rootVar],
-                        listeners: []
-                    };
+            const {
+                configurable = false,
+                watchMode = 'defineProperty',
+                intervalPeriod = 100
+            } = pathOptions;
         
-                    self._defStore[rootVar] = data;
-        
-                    Object.defineProperty(window, rootVar, {
-                        get() {
-                            return data.value;
-                        },
-                        set(value) {
-                            data.value = value;
-        
-                            for (let i = data.listeners.length - 1; i >= 0; i--) {
-                                const listener = data.listeners[i];
-        
-                                if (!listener.active) {
-                                    data.listeners.splice(i, 1);
-                                    continue;
-                                }
-        
-                                const keep = fireListener(listener, value, varName);
-        
-                                if (!keep) {
-                                    cleanupListener(listener, data.listeners);
-                                }
-                            }
-                        },
-                        configurable: true,
-                        enumerable: true
-                    });
+            // ============================================================
+            // УНИВЕРСАЛЬНЫЙ ИНТЕРВАЛЬНЫЙ МЕХАНИЗМ (для любых путей)
+            // ============================================================
+            if (watchMode === 'interval') {
+                if (!self._intervalWatchers) {
+                    self._intervalWatchers = new Map();
+                    self._intervalTimers = new Map();
                 }
         
-                const store = self._defStore[rootVar];
-                const listener = makeListener(callback, every, store.listeners);
+                const listener = makeListener(callback, every, null);
+                if (!self._pathListeners.has(varName)) {
+                    self._pathListeners.set(varName, []);
+                }
+                const list = self._pathListeners.get(varName);
+                list.push(listener);
+                self._defRefs.set(listener.id, { listener, list });
         
-                if (store.value !== undefined) {
-                    const keep = fireListener(listener, store.value, varName);
-        
-                    if (keep) {
-                        store.listeners.push(listener);
-                    } else {
-                        cleanupListener(listener);
+                const checkValue = function() {
+                    const val = self._getNested(varName);
+                    if (val !== undefined && val !== null) {
+                        if (immediate && !listener._firedImmediate) {
+                            listener._firedImmediate = true;
+                            const keep = fireListener(listener, val, varName);
+                            if (!keep) {
+                                cleanupListener(listener, list);
+                                self._stopIntervalWatcher(varName);
+                            }
+                            return;
+                        }
+                        const watcher = self._intervalWatchers.get(varName);
+                        if (watcher && watcher.lastValue !== val) {
+                            watcher.lastValue = val;
+                            const keep = fireListener(listener, val, varName);
+                            if (!keep) {
+                                cleanupListener(listener, list);
+                                self._stopIntervalWatcher(varName);
+                            }
+                        }
                     }
+                };
+        
+                let timerId = self._intervalTimers.get(varName);
+                let watcher = self._intervalWatchers.get(varName);
+        
+                // Если интервал есть, но watcher отсутствует – значит, интервал был остановлен, но запись осталась
+                if (timerId && !watcher) {
+                    self._intervalTimers.delete(varName);
+                    timerId = null;
+                }
+        
+                if (!timerId) {
+                    timerId = setInterval(checkValue, intervalPeriod);
+                    self._intervalTimers.set(varName, timerId);
+                    self._intervalWatchers.set(varName, {
+                        lastValue: self._getNested(varName)
+                    });
                 } else {
-                    store.listeners.push(listener);
+                    // Интервал уже существует, добавляем слушателя (уже добавлен)
+                    if (immediate) {
+                        const current = self._getNested(varName);
+                        if (current !== undefined && current !== null) {
+                            const keep = fireListener(listener, current, varName);
+                            if (!keep) {
+                                cleanupListener(listener, list);
+                                self._stopIntervalWatcher(varName);
+                            }
+                        }
+                    }
                 }
         
                 return listener.id;
             }
         
-            // --- Случай 2: вложенный путь ---
-            if (!self._nestedDefStore) self._nestedDefStore = {};
+            // ============================================================
+            // defineProperty для корневых свойств
+            // ============================================================
+            if (restPath.length === 0) {
+                if (!self._rootDefined.has(rootVar)) {
+                    self._rootDefined.add(rootVar);
+                    let data = { value: window[rootVar] };
+                    Object.defineProperty(window, rootVar, {
+                        get() { return data.value; },
+                        set(value) {
+                            data.value = value;
+                            if (value && typeof value === 'object') {
+                                const proxied = self._makeObservable(value, rootVar);
+                                if (proxied !== value) data.value = proxied;
+                            }
+                            self._fireListeners(rootVar, data.value);
+                        },
+                        configurable: configurable,
+                        enumerable: true
+                    });
+                    if (window[rootVar] && typeof window[rootVar] === 'object') {
+                        const initial = window[rootVar];
+                        const proxied = self._makeObservable(initial, rootVar);
+                        if (proxied !== initial) {
+                            window[rootVar] = proxied;
+                        }
+                    }
+                }
         
-            if (!self._nestedDefStore[varName]) {
-                self._nestedDefStore[varName] = {
-                    listeners: [],
-                    ready: false,
-                    rootWatchId: null
-                };
+                const listener = makeListener(callback, every, null);
+                if (!self._pathListeners.has(rootVar)) self._pathListeners.set(rootVar, []);
+                const list = self._pathListeners.get(rootVar);
+                list.push(listener);
+                self._defRefs.set(listener.id, { listener, list });
+        
+                const currentValue = window[rootVar];
+                if (immediate && currentValue !== undefined) {
+                    const keep = fireListener(listener, currentValue, rootVar);
+                    if (!keep) {
+                        const idx = list.indexOf(listener);
+                        if (idx !== -1) list.splice(idx, 1);
+                        self._defRefs.delete(listener.id);
+                    }
+                }
+                return listener.id;
             }
         
+            // ============================================================
+            // Proxy для вложенных путей (если не выбран интервал)
+            // ============================================================
+            if (!self._nestedDefStore) self._nestedDefStore = {};
+            if (!self._nestedDefStore[varName]) {
+                self._nestedDefStore[varName] = { ready: false, rootWatchId: null };
+            }
             const entry = self._nestedDefStore[varName];
-            const listener = makeListener(callback, every, entry.listeners);
+        
+            const listener = makeListener(callback, every, null);
+            if (!self._pathListeners.has(varName)) self._pathListeners.set(varName, []);
+            const list = self._pathListeners.get(varName);
+            list.push(listener);
+            self._defRefs.set(listener.id, { listener, list });
         
             const trySetup = () => {
                 if (entry.ready) return;
         
-                let target = window[rootVar];
-                if (!isTrackable(target)) return;
-        
-                for (let i = 0; i < restPath.length - 1; i++) {
-                    if (!isTrackable(target)) return;
-                    target = target[restPath[i]];
+                let current = window;
+                let parent = window;
+                let parentPart = null;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i];
+                    if (!current || typeof current !== 'object') return;
+                    const child = current[part];
+                    if (!child || typeof child !== 'object') return;
+                    const newPath = parts.slice(0, i + 1).join('.');
+                    const proxied = self._makeObservable(child, newPath);
+                    if (proxied !== child) {
+                        current[part] = proxied;
+                    }
+                    if (i === parts.length - 2) {
+                        parent = current;
+                        parentPart = part;
+                    }
+                    current = current[part];
                 }
         
-                const lastKey = restPath[restPath.length - 1];
-                if (!isTrackable(target)) return;
+                const lastKey = parts[parts.length - 1];
+                if (!current || typeof current !== 'object') return;
         
-                let _val = target[lastKey];
-        
-                Object.defineProperty(target, lastKey, {
-                    get() {
-                        return _val;
-                    },
-                    set(value) {
-                        _val = value;
-        
-                        entry.listeners = entry.listeners.filter(listener => {
-                            if (!listener.active) return false;
-                            return fireListener(listener, value, varName);
-                        });
-                    },
-                    configurable: true,
-                    enumerable: true
-                });
+                const parentPath = parts.slice(0, parts.length - 1).join('.');
+                const proxiedCurrent = self._makeObservable(current, parentPath);
+                if (proxiedCurrent !== current && parent && parentPart) {
+                    parent[parentPart] = proxiedCurrent;
+                }
         
                 entry.ready = true;
-        
                 if (entry.rootWatchId != null) {
                     self.defOff(entry.rootWatchId);
                     entry.rootWatchId = null;
                 }
         
-                if (_val !== undefined) {
-                    entry.listeners = entry.listeners.filter(listener => {
-                        if (!listener.active) return false;
-                        return fireListener(listener, _val, varName);
-                    });
+                if (immediate) {
+                    const value = self._getNested(varName);
+                    if (value !== undefined) {
+                        const currentListeners = self._pathListeners.get(varName);
+                        if (currentListeners) {
+                            const copy = currentListeners.slice();
+                            for (const l of copy) {
+                                if (!l.active) continue;
+                                const keep = fireListener(l, value, varName);
+                                if (!keep) {
+                                    const idx = currentListeners.indexOf(l);
+                                    if (idx !== -1) currentListeners.splice(idx, 1);
+                                    self._defRefs.delete(l.id);
+                                }
+                            }
+                        }
+                    }
                 }
             };
         
-            entry.listeners.push(listener);
             trySetup();
         
             if (!entry.ready && entry.rootWatchId == null) {
-                entry.rootWatchId = self.def(rootVar, () => {
-                    trySetup();
-                }, false);
+                entry.rootWatchId = self.def(rootVar, () => trySetup(), false, true, true);
             }
         
             return listener.id;
+        },
+
+        _stopIntervalWatcher: function(path) {
+            const timerId = this._intervalTimers && this._intervalTimers.get(path);
+            if (timerId) {
+                clearInterval(timerId);
+                this._intervalTimers.delete(path);
+            }
+            if (this._intervalWatchers) {
+                this._intervalWatchers.delete(path);
+            }
+            // также проверяем, есть ли ещё слушатели в _pathListeners для этого пути
+            const listeners = this._pathListeners.get(path);
+            if (listeners && listeners.length === 0) {
+                this._pathListeners.delete(path);
+            }
         },
 
 		_whenId: 0,
@@ -643,6 +834,7 @@
 
 			window.addEventListener(eventName, this._whenNative[eventName]);
 		},
+
 		_whenIsReady: function(sub) {
 			if (sub.mode === 'ordered') {
 				return sub.step >= sub.events.length;
@@ -1857,6 +2049,13 @@
 	  })();
 	};
 
+    if (typeof location !== 'undefined' && location.search) {
+        const params = new URLSearchParams(location.search);
+        if (params.get('_qudebug') === '1') Qu._debug = true;
+        if (params.get('_qudebugType') === '1') Qu._debugType = true;
+        if (params.get('_debugEvents') === '1') Qu._debugEvents = true;
+    }
+    
     global.Qu = Qu;
     Qu.debug('📚 [Qu] Registered');
     Qu.extend();
@@ -1875,12 +2074,6 @@
 
     Qu.trigger(global, 'qu:loaded', { detail: { Qu } });
     Qu.init();
-
-    global._QuLibs = global._QuLibs || [];
-    if (global._QuLibs.length) {
-        global._QuLibs.forEach(lib => Qu.lib(lib.name, lib.instance));
-        global._QuLibs = [];
-    }
     
     Qu.dom().then(() => {
         Qu.status.domReady = true;
@@ -1894,4 +2087,11 @@
         Qu.trigger(global, 'qu:ready', { detail: { Qu } });
     });
 
+    global._QuLibs = global._QuLibs || [];
+    if (global._QuLibs.length) {
+        global._QuLibs.forEach(lib => Qu.lib(lib.name, lib.instance));
+        global._QuLibs = [];
+    }
+    
+//})(window); // todo везде
 })(typeof window !== 'undefined' ? window : global);
