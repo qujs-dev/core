@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.0.7
+ * Qu v1.0.8
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -1972,10 +1972,25 @@
                                 this._setupLibraryDebug(instance, initConfig);
                                 if (!excludeInit.includes(libIdentifier)) {
                                     instance.init(this, initConfig);
+                                    
+                                    this.trigger(global, 'qu:' + libIdentifier + ':init', {
+                                        detail: { Qu: this, name: libIdentifier, instance }
+                                    });
                                 }
                             }
                         });
                     }
+
+                    instances.forEach(instance => {
+                        const libIdentifier = instance.libName || instance.name;
+                        const wasInitialized = autoInit && !excludeInit.includes(libIdentifier) && typeof instance.init === 'function';
+                        if (wasInitialized) {
+                            this.trigger(global, 'qu:' + libIdentifier + ':ready', {
+                                detail: { Qu: this, name: libIdentifier, instance }
+                            });
+                        }
+                    });
+
                     this.trigger(global, 'qu:libs:ready', { 
                         detail: { Qu: this, libNames, instances, options, loadType, cached: false }
                     });
