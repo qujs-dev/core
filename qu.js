@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.0.9
+ * Qu v1.1.1
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
