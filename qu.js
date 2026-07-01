@@ -1833,9 +1833,9 @@
                 
                 let assetType = type;
                 if (assetType === 'auto' && typeof item === 'string') {
-                    if (item.match(/\.(js|mjs)$/i)) assetType = 'script';
-                    else if (item.match(/\.(css)$/i)) assetType = 'style';
-                    else if (item.match(/\.(png|jpe?g|gif|svg|webp|ico)$/i)) assetType = 'image';
+                    if (item.match(/\.(js|mjs)(\?.*)?$/i)) assetType = 'script';
+                    else if (item.match(/\.(css)(\?.*)?$/i)) assetType = 'style';
+                    else if (item.match(/\.(png|jpe?g|gif|svg|webp|ico)(\?.*)?$/i)) assetType = 'image';
                     else assetType = 'unknown';
                 }
                 
