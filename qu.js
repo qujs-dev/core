@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.0.8
+ * Qu v1.0.9
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -960,60 +960,67 @@
                 selector = window;
             }
             options = options || {};
-
-            if (selector && 
-                (selector instanceof NodeList || 
-                    selector instanceof HTMLCollection ||
-                Array.isArray(selector))) {
-                
-                const elements = selector;
+        
+            // --- Коллекции ---
+            if (selector && (selector instanceof NodeList || selector instanceof HTMLCollection || Array.isArray(selector))) {
+                var elements = selector;
+                var self = this;
                 if (this._debugEvents) {
                     this.debug('🟡 [Qu] on (collection mode)', { elements, eventTypes, callback, options });
                 }
-                
-                elements.forEach(element => {
-                    this.on(eventTypes, element, callback, options);
+                elements.forEach(function(element) {
+                    self.on(eventTypes, element, callback, options);
                 });
                 return;
             }
-
+        
+            // --- Конкретный элемент ---
             if (selector && typeof selector !== 'string' && selector.addEventListener) {
-                const element = selector;
-                
+                var element = selector;
                 if (this._debugEvents) {
                     this.debug('🟡 [Qu] on (element mode)', { element, eventTypes, callback, options });
                 }
-                
+        
                 if (typeof eventTypes === 'string') {
-                    eventTypes = eventTypes.split(' ').filter(e => e.trim());
+                    eventTypes = eventTypes.split(' ').filter(function(e) { return e.trim(); });
                 }
-                
-                eventTypes.forEach(eventType => {
-                    const eventHandler = function(event) {
+        
+                var self = this;
+                eventTypes.forEach(function(eventType) {
+                    var eventHandler = function(event) {
                         event._target = element;
                         callback(event);
                     };
-                    
-                    const handlerKey = `${element._quId || (element._quId = Math.random())}:${eventType}:${callback.toString()}`;
-                    if (!this._handlers.has(element)) this._handlers.set(element, new Map());
-                    this._handlers.get(element).set(handlerKey, { wrapper: eventHandler, options });
-                    
+        
+                    var handlerKey = (element._quId || (element._quId = Math.random())) + ':' + eventType + ':' + callback.toString();
+                    if (!self._handlers.has(element)) self._handlers.set(element, new Map());
+        
+                    // --- ПРОВЕРКА ДУБЛЯ: если уже есть, не добавляем ---
+                    if (self._handlers.get(element).has(handlerKey)) {
+                        if (self._debugEvents) {
+                            self.debug('🟡 [Qu] on (duplicate ignored)', { element, eventType, callback });
+                        }
+                        return;
+                    }
+        
+                    self._handlers.get(element).set(handlerKey, { wrapper: eventHandler, options: options });
                     element.addEventListener(eventType.trim(), eventHandler, options);
                 });
-                
                 return;
             }
-
+        
+            // --- Делегирование ---
             if (this._debugEvents) {
                 this.debug('🟡 [Qu] on (selector mode)', { selector, eventTypes, callback, options });
             }
-            
+        
             if (typeof eventTypes === 'string') {
-                eventTypes = eventTypes.split(' ').filter(e => e.trim());
+                eventTypes = eventTypes.split(' ').filter(function(e) { return e.trim(); });
             }
-            
-            eventTypes.forEach(eventType => {
-                const eventHandler = function(event) {
+        
+            var self = this;
+            eventTypes.forEach(function(eventType) {
+                var eventHandler = function(event) {
                     if (typeof event.target.closest !== 'function') {
                         event._target = event.detail;
                         event.detail.dispatchEvent(new Event(event.type));
@@ -1025,13 +1032,23 @@
                         }
                     }
                 };
-                
-                const delKey = `del:${eventType}:${selector}:${callback.toString()}`;
-                if (!this._handlers.has('document')) this._handlers.set('document', new Map());
-                this._handlers.get('document').set(delKey, { wrapper: eventHandler, options, selector });
-                
-                if (this._debugEvents) {
-                    this.debug('🟡 [Qu] on listener', { selector, eventType, callback, options });
+                eventHandler._eventType = eventType.trim();
+        
+                var delKey = 'del:' + eventType + ':' + selector + ':' + callback.toString();
+                if (!self._handlers.has('document')) self._handlers.set('document', new Map());
+        
+                // --- ПРОВЕРКА ДУБЛЯ для делегирования ---
+                if (self._handlers.get('document').has(delKey)) {
+                    if (self._debugEvents) {
+                        self.debug('🟡 [Qu] on (delegate duplicate ignored)', { selector, eventType, callback });
+                    }
+                    return;
+                }
+        
+                self._handlers.get('document').set(delKey, { wrapper: eventHandler, options: options, selector: selector });
+        
+                if (self._debugEvents) {
+                    self.debug('🟡 [Qu] on listener', { selector: selector, eventType: eventType, callback: callback, options: options });
                 }
                 document.addEventListener(eventType.trim(), eventHandler, options);
             });
@@ -1039,83 +1056,204 @@
 
         off: function(eventTypes, selector, callback, options) {
             options = options || {};
-
-            if (selector && 
-                (selector instanceof NodeList || 
-                    selector instanceof HTMLCollection ||
-                Array.isArray(selector))) {
-                
-                const elements = selector;
+        
+            // --- Нормализация: коллекция или массив элементов ---
+            if (eventTypes && (eventTypes instanceof NodeList || eventTypes instanceof HTMLCollection || (Array.isArray(eventTypes) && eventTypes.length && eventTypes[0] && eventTypes[0].nodeType !== undefined))) {
+                var target = eventTypes;
+                var cb = (typeof selector === 'function') ? selector : null;
+                var opts = (typeof selector === 'function') ? (callback || {}) : (selector || {});
+                if (typeof selector !== 'function' && typeof selector !== 'object') opts = {};
+                if (typeof selector === 'function' && typeof callback === 'object') opts = callback;
+                this.off(null, target, cb, opts);
+                return;
+            }
+        
+            // --- Нормализация: одиночный элемент ---
+            if (eventTypes && typeof eventTypes === 'object' && eventTypes.nodeType !== undefined) {
+                var el = eventTypes;
+                var cb = (typeof selector === 'function') ? selector : null;
+                var opts = (typeof selector === 'function') ? (callback || {}) : (selector || {});
+                if (typeof selector !== 'function' && typeof selector !== 'object') opts = {};
+                if (typeof selector === 'function' && typeof callback === 'object') opts = callback;
+                this.off(null, el, cb, opts);
+                return;
+            }
+        
+            // --- Если selector — функция (подписка на window) ---
+            if (typeof selector === 'function') {
+                var cb = selector;
+                var opts = (typeof callback === 'object' && callback !== null) ? callback : {};
+                this.off(eventTypes, window, cb, opts);
+                return;
+            }
+        
+            // --- Нормализация eventTypes в массив (если строка) ---
+            if (typeof eventTypes === 'string') {
+                eventTypes = eventTypes.split(' ').filter(function(e) { return e.trim(); });
+            } else if (!Array.isArray(eventTypes)) {
+                eventTypes = null;
+            }
+        
+            // --- Обработка коллекций (selector — коллекция) ---
+            if (selector && (selector instanceof NodeList || selector instanceof HTMLCollection || Array.isArray(selector))) {
+                var elements = selector;
+                var self = this;
                 if (this._debugEvents) {
                     this.debug('🔴 [Qu] off (collection mode)', { elements, eventTypes, callback, options });
                 }
-                
-                elements.forEach(element => {
-                    this.off(eventTypes, element, callback, options);
+                elements.forEach(function(element) {
+                    self.off(eventTypes, element, callback, options);
                 });
                 return;
             }
-            
+        
+            // --- Одиночный элемент ---
             if (selector && typeof selector !== 'string' && selector.removeEventListener) {
-                const element = selector;
-                
-                if (typeof eventTypes === 'string') {
-                    eventTypes = eventTypes.split(' ').filter(e => e.trim());
+                var element = selector;
+        
+                // 1. Полная очистка (клонирование)
+                if (options.native === true) {
+                    element.replaceWith(element.cloneNode(true));
+                    this._handlers.delete(element);
+                    if (this._debugEvents) {
+                        this.debug('🔴 [Qu] Element cloned - all listeners removed (including native)');
+                    }
+                    return;
                 }
-                
-                eventTypes.forEach(eventType => {
-                    if (!callback) {
-                        element.replaceWith(element.cloneNode(true));
-                        this._handlers.delete(element);
-                        if (this._debugEvents) {
-                            this.debug('🔴 [Qu] Element cloned - all listeners removed');
+        
+                // 2. Удаление всех Qu-обработчиков (без callback)
+                if (!callback) {
+                    var handlers = this._handlers.get(element);
+                    if (handlers) {
+                        var keysToRemove = [];
+                        for (var _key of handlers.keys()) {
+                            var data = handlers.get(_key);
+                            var evType = _key.split(':')[1];
+                            element.removeEventListener(evType, data.wrapper, data.options);
+                            keysToRemove.push(_key);
                         }
-                    } else {
-                        const handlers = this._handlers.get(element);
-                        if (handlers) {
-                            const keysToDelete = [];
-                            for (const [key, data] of handlers.entries()) {
-                                if (key.includes(eventType + ':' + callback.toString())) {
-                                    element.removeEventListener(eventType.trim(), data.wrapper, data.options);
-                                    keysToDelete.push(key);
-                                    
-                                    if (this._debugEvents) {
-                                        this.debug('🔴 [Qu] Removed element listener', { element, eventType, callback });
-                                    }
+                        keysToRemove.forEach(function(k) { handlers.delete(k); });
+                        if (handlers.size === 0) this._handlers.delete(element);
+                        if (this._debugEvents) {
+                            this.debug('🔴 [Qu] Removed all Qu listeners from element', { element });
+                        }
+                    }
+                    return;
+                }
+        
+                // 3. Удаление конкретного обработчика (с фильтром по типам)
+                var handlers2 = this._handlers.get(element);
+                if (!handlers2) return;
+        
+                var callbackStr = callback.toString();
+                var keysToDelete = [];
+                var quId = element._quId;
+        
+                if (eventTypes && eventTypes.length) {
+                    // Сначала пытаемся найти по точному ключу
+                    if (quId) {
+                        for (var i = 0; i < eventTypes.length; i++) {
+                            var evType = eventTypes[i];
+                            var exactKey = quId + ':' + evType + ':' + callbackStr;
+                            if (handlers2.has(exactKey)) {
+                                var data = handlers2.get(exactKey);
+                                element.removeEventListener(evType, data.wrapper, data.options);
+                                keysToDelete.push(exactKey);
+                            }
+                        }
+                    }
+                    // Если точные ключи не найдены, ищем перебором
+                    if (keysToDelete.length === 0) {
+                        for (var _key2 of handlers2.keys()) {
+                            var parts = _key2.split(':');
+                            var evType2 = parts[1];
+                            var cbStr = parts.slice(2).join(':');
+                            if (eventTypes.includes(evType2) && cbStr === callbackStr) {
+                                var data2 = handlers2.get(_key2);
+                                element.removeEventListener(evType2, data2.wrapper, data2.options);
+                                keysToDelete.push(_key2);
+                            }
+                        }
+                    }
+                } else {
+                    // Если типы не указаны, удаляем все записи с этим callback
+                    for (var _key3 of handlers2.keys()) {
+                        var parts = _key3.split(':');
+                        var cbStr = parts.slice(2).join(':');
+                        if (cbStr === callbackStr) {
+                            var data3 = handlers2.get(_key3);
+                            var evType3 = parts[1];
+                            element.removeEventListener(evType3, data3.wrapper, data3.options);
+                            keysToDelete.push(_key3);
+                        }
+                    }
+                }
+        
+                keysToDelete.forEach(function(k) { handlers2.delete(k); });
+                if (handlers2.size === 0) this._handlers.delete(element);
+                if (this._debugEvents && keysToDelete.length) {
+                    this.debug('🔴 [Qu] Removed element listener(s)', {
+                        element: element,
+                        eventTypes: eventTypes || '(all)',
+                        callback: callback
+                    });
+                }
+                return;
+            }
+        
+            // --- Делегирование (selector — строка) ---
+            if (typeof selector === 'string') {
+                var docHandlers = this._handlers.get('document');
+                if (docHandlers) {
+                    var keysToDeleteDel = [];
+        
+                    // Если есть и eventTypes, и callback – удаляем по точным ключам
+                    if (eventTypes && eventTypes.length && callback) {
+                        var callbackStrDel = callback.toString();
+                        for (var i = 0; i < eventTypes.length; i++) {
+                            var evType = eventTypes[i];
+                            var delKey = 'del:' + evType + ':' + selector + ':' + callbackStrDel;
+                            if (docHandlers.has(delKey)) {
+                                var data = docHandlers.get(delKey);
+                                document.removeEventListener(evType, data.wrapper, data.options);
+                                keysToDeleteDel.push(delKey);
+                                if (this._debugEvents) {
+                                    this.debug('🔴 [Qu] Removed delegated listener (exact key)', { eventType: evType, selector: selector, callback: callback });
                                 }
                             }
-                            keysToDelete.forEach(key => handlers.delete(key));
-                            if (handlers.size === 0) this._handlers.delete(element);
                         }
-                    }
-                });
-                
-                return;
-            }
-            
-            if (typeof eventTypes === 'string') {
-                eventTypes = eventTypes.split(' ').filter(e => e.trim());
-            }
-            
-            eventTypes.forEach(eventType => {
-                const docHandlers = this._handlers.get('document');
-                if (docHandlers) {
-                    const keysToDelete = [];
-                    for (const [key, data] of docHandlers.entries()) {
-                        if (key.startsWith(`del:${eventType}:`) && 
-                            key.includes(callback.toString()) &&
-                            (!selector || data.selector === selector)) {
-                            document.removeEventListener(eventType.trim(), data.wrapper, data.options);
-                            keysToDelete.push(key);
+                    } else {
+                        // Иначе – старый поиск по частичному совпадению (если нет eventTypes или callback)
+                        for (var _key4 of docHandlers.keys()) {
+                            if (!_key4.startsWith('del:')) continue;
+                            var data4 = docHandlers.get(_key4);
+        
+                            if (eventTypes && eventTypes.length) {
+                                var match = false;
+                                for (var t = 0; t < eventTypes.length; t++) {
+                                    if (_key4.indexOf(':' + eventTypes[t] + ':') !== -1) { match = true; break; }
+                                }
+                                if (!match) continue;
+                            }
+                            if (selector && _key4.indexOf(':' + selector + ':') === -1) continue;
+                            if (callback && _key4.indexOf(':' + callback.toString()) === -1) continue;
+        
+                            document.removeEventListener(data4.wrapper._eventType || data4.wrapper.type, data4.wrapper, data4.options);
+                            keysToDeleteDel.push(_key4);
                             if (this._debugEvents) {
-                                this.debug('🔴 [Qu] Removed delegated listener', { eventType, selector, callback });
+                                this.debug('🔴 [Qu] Removed delegated listener', {
+                                    eventType: data4.wrapper._eventType || 'unknown',
+                                    selector: data4.selector,
+                                    callback: callback || '(all)'
+                                });
                             }
                         }
                     }
-                    keysToDelete.forEach(key => docHandlers.delete(key));
+        
+                    keysToDeleteDel.forEach(function(k) { docHandlers.delete(k); });
                     if (docHandlers.size === 0) this._handlers.delete('document');
                 }
-            });
+            }
         },
 
         debounce: function(func, wait) {
