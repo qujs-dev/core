@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.1.1
+ * Qu v1.1.2
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -1576,6 +1576,34 @@
                 onMove,
                 onClickPrevent
             };
+        },
+
+        dragScrollOff: function(container) {
+            if (!container || !container._dragScrollEnabled) return;
+        
+            var handlers = container._dragScrollHandlers;
+            if (!handlers) return;
+        
+            container._dragScrollEnabled = false;
+        
+            container.removeEventListener('mousedown', handlers.onStart);
+            container.removeEventListener('mouseup', handlers.stopDrag);
+            container.removeEventListener('mouseleave', handlers.stopDrag);
+            container.removeEventListener('mousemove', handlers.onMove);
+            container.removeEventListener('click', handlers.onClickPrevent);
+        
+            if (handlers._touchEnabled) {
+                container.removeEventListener('touchstart', handlers.onStart);
+                container.removeEventListener('touchend', handlers.stopDrag);
+                container.removeEventListener('touchcancel', handlers.stopDrag);
+                container.removeEventListener('touchmove', handlers.onMove);
+            }
+        
+            container.removeAttribute('data-qu-drag-scroll');
+            container.removeAttribute('data-qu-draggable');
+        
+            delete container._dragScrollHandlers;
+            delete container._dragScrollEnabled;
         },
   
         scrollFollowCursor: function(container, options = {}) {
