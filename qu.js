@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.1.3
+ * Qu v1.1.4
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -2102,6 +2102,7 @@
             this.trigger(global, `qu:${name}:loaded`, { detail: { Qu: this, name, instance } });
         },
 
+
         libs: function(libNames, options = {}) {
             const _this = this;
             const cacheKey = JSON.stringify(this.deepSortObject({
@@ -2110,85 +2111,123 @@
                 excludeInit: (options.excludeInit || []).sort(),
                 initParams: options.initParams || {}
             }));
-            
+        
             const fireAlwaysEvent = (instances, cached = false) => {
-                this.trigger(global, 'qu:libs:always', { 
+                this.trigger(global, 'qu:libs:always', {
                     detail: { Qu: this, libNames, instances, options: { ...options }, cached }
                 });
             };
-            
+        
             if (this._libPromises && this._libPromises.has(cacheKey)) {
                 const cachedPromise = this._libPromises.get(cacheKey);
                 cachedPromise.then(instances => fireAlwaysEvent(instances, true));
                 return cachedPromise;
             }
-            
+        
             if (!this._libPromises) this._libPromises = new Map();
-
+        
             const promise = new Promise((resolve) => {
                 const { autoInit = false, initParams = {}, excludeInit = [] } = options;
                 const loadedLibs = new Set();
-
-                const completeLoading = (instances, loadType) => {
-                    if (autoInit) {
-                        instances.forEach(instance => {
-                            if (instance && typeof instance.init === 'function') {
-                                const libIdentifier = instance.libName || instance.name;
-                                const initConfig = initParams[libIdentifier] || {};
-                                this._setupLibraryDebug(instance, initConfig);
-                                if (!excludeInit.includes(libIdentifier)) {
-                                    instance.init(this, initConfig);
-                                    
-                                    this.trigger(global, 'qu:' + libIdentifier + ':init', {
-                                        detail: { Qu: this, name: libIdentifier, instance }
-                                    });
-                                }
-                            }
+                const initPromises = [];
+        
+                // Генерируем ready для одной библиотеки (только если был вызван init)
+                const fireReady = (instance, libIdentifier) => {
+                    this.trigger(global, 'qu:' + libIdentifier + ':ready', {
+                        detail: { Qu: this, name: libIdentifier, instance }
+                    });
+                };
+        
+                // Обработка библиотеки: вызов init, генерация init и ready (только если autoInit)
+                const processLib = (instance) => {
+                    const libIdentifier = instance.libName || instance.name;
+                    const initConfig = initParams[libIdentifier] || {};
+                    this._setupLibraryDebug(instance, initConfig);
+        
+                    if (autoInit && !excludeInit.includes(libIdentifier) && typeof instance.init === 'function') {
+                        const result = instance.init(this, initConfig);
+                        this.trigger(global, 'qu:' + libIdentifier + ':init', {
+                            detail: { Qu: this, name: libIdentifier, instance }
                         });
-                    }
-
-                    instances.forEach(instance => {
-                        const libIdentifier = instance.libName || instance.name;
-                        const wasInitialized = autoInit && !excludeInit.includes(libIdentifier) && typeof instance.init === 'function';
-                        if (wasInitialized) {
-                            this.trigger(global, 'qu:' + libIdentifier + ':ready', {
-                                detail: { Qu: this, name: libIdentifier, instance }
+                        if (result && typeof result.then === 'function') {
+                            initPromises.push(result);
+                            result.then(function() {
+                                fireReady(instance, libIdentifier);
+                            }).catch(function() {
+                                fireReady(instance, libIdentifier);
                             });
+                        } else {
+                            fireReady(instance, libIdentifier);
+                        }
+                    }
+                };
+        
+                const completeLoading = (instancesObj, loadType) => {
+                    this.trigger(global, 'qu:libs:done', {
+                        detail: {
+                            Qu: this,
+                            libNames,
+                            instances: instancesObj,
+                            options,
+                            loadType,
+                            cached: false,
+                            initialized: autoInit
                         }
                     });
-
-                    this.trigger(global, 'qu:libs:ready', { 
-                        detail: { Qu: this, libNames, instances, options, loadType, cached: false }
-                    });
-                    fireAlwaysEvent(instances, false);
-                    resolve(instances);
+                    fireAlwaysEvent(instancesObj, false);
+                    resolve(instancesObj);
                 };
-                
+        
                 const handler = (event) => {
                     const libName = event.detail.name;
                     if (libNames.includes(libName)) {
                         loadedLibs.add(libName);
+                        const instance = _this[libName];
+                        if (instance) processLib(instance);
                         if (libNames.every(lib => loadedLibs.has(lib))) {
                             global.removeEventListener('qu:lib:loaded', handler);
-                            const instances = libNames.map(lib => _this[lib]);
-                            completeLoading(instances, 'lazy-loaded');
+                            const instancesObj = {};
+                            libNames.forEach(lib => {
+                                instancesObj[lib] = _this[lib];
+                            });
+                            if (autoInit) {
+                                Promise.all(initPromises).then(function() {
+                                    completeLoading(instancesObj, 'lazy-loaded');
+                                });
+                            } else {
+                                completeLoading(instancesObj, 'lazy-loaded');
+                            }
                         }
                     }
                 };
-                
+        
                 global.addEventListener('qu:lib:loaded', handler);
-                
+        
                 libNames.forEach(libName => {
-                    if (_this[libName]) loadedLibs.add(libName);
+                    if (_this[libName]) {
+                        loadedLibs.add(libName);
+                        if (autoInit) {
+                            processLib(_this[libName]);
+                        }
+                    }
                 });
-                
+        
                 if (libNames.every(lib => loadedLibs.has(lib))) {
                     global.removeEventListener('qu:lib:loaded', handler);
-                    const instances = libNames.map(lib => _this[lib]);
-                    completeLoading(instances, 'pre-loaded');
+                    const instancesObj = {};
+                    libNames.forEach(lib => {
+                        instancesObj[lib] = _this[lib];
+                    });
+                    if (autoInit) {
+                        Promise.all(initPromises).then(function() {
+                            completeLoading(instancesObj, 'pre-loaded');
+                        });
+                    } else {
+                        completeLoading(instancesObj, 'pre-loaded');
+                    }
                 }
             });
-
+        
             this._libPromises.set(cacheKey, promise);
             return promise;
         },
