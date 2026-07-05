@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.1.5
+ * Qu v1.1.6
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -1377,6 +1377,8 @@
         },
 
                 
+        _globalScrollToken: 0,
+
         scrollTo: function(element, options = {}) {
             return new Promise((resolve) => {
                 if (!element || !element.scrollIntoView) {
@@ -1384,8 +1386,7 @@
                     return;
                 }
 
-                
-                const token = (element._scrollToken = (element._scrollToken || 0) + 1);
+                const globalToken = ++this._globalScrollToken;
 
                 const settings = {
                     hash: '',
@@ -1429,8 +1430,7 @@
 
                 if (settings.behavior !== 'smooth') {
                     setTimeout(() => {
-                        
-                        if (element._scrollToken !== token) return;
+                        if (this._globalScrollToken !== globalToken) return;
                         this.trigger(element, 'qu:scrollto:after', { detail: { element, options: settings } });
                         resolve(true);
                     }, 0);
@@ -1444,8 +1444,7 @@
                 const handleScrollEnd = () => {
                     clearTimeout(scrollEndTimeout);
                     scrollEndTimeout = setTimeout(() => {
-                        
-                        if (element._scrollToken !== token) return;
+                        if (this._globalScrollToken !== globalToken) return;
                         window.removeEventListener('scroll', handleScrollEnd);
                         this.trigger(element, 'qu:scrollto:after', { detail: { element, options: settings } });
                         resolve(true);
@@ -1457,29 +1456,42 @@
 
                 setTimeout(() => {
                     window.removeEventListener('scroll', onScrollCheck);
-                    
-                    if (element._scrollToken !== token) return;
+                    if (this._globalScrollToken !== globalToken) return;
                     if (!scrollStarted) {
                         clearTimeout(scrollEndTimeout);
                         this.trigger(element, 'qu:scrollto:after', { detail: { element, options: settings } });
                         resolve(true);
                         return;
                     }
-                    
                 }, 100);
             });
         },
 
         scrollToAccurate: function(element, options = {}) {
             const settings = { hash: '', block: 'center', behavior: 'smooth', ...options };
+
             if (settings.behavior !== 'smooth') {
                 return this.scrollTo(element, settings);
             }
-            
-            return this.scrollTo(element, settings)
-                .then(() => this.scrollTo(element, { block: settings.block, behavior: settings.behavior }));
-        },
 
+            const startGlobalToken = this._globalScrollToken + 1;
+            const accurateToken = (element._accurateToken = (element._accurateToken || 0) + 1);
+
+            return this.scrollTo(element, settings)
+                .then((result) => {
+                    if (result === false || this._globalScrollToken !== startGlobalToken) {
+                        return false;
+                    }
+                    if (element._accurateToken !== accurateToken) {
+                        return false;
+                    }
+                    return this.scrollTo(element, {
+                        block: settings.block,
+                        behavior: settings.behavior
+                    });
+                });
+        },
+        
         dragScroll: function(container, options = {}) {
             if (!container || !container.addEventListener) return;
             if (container._dragScrollEnabled) return;
