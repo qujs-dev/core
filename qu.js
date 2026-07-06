@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.1.6
+ * Qu v1.1.7
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -2165,6 +2165,9 @@
                 const processLib = (instance) => {
                     const libIdentifier = instance.libName || instance.name;
                     const initConfig = initParams[libIdentifier] || {};
+                    if (typeof initConfig === 'function') {
+                      initConfig = initConfig();
+                    }
                     this._setupLibraryDebug(instance, initConfig);
         
                     if (autoInit && !excludeInit.includes(libIdentifier) && typeof instance.init === 'function') {
