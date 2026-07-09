@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.1.9
+ * Qu v1.2.0
  * Custom utilities
  *  
  * @author Serge Galich <gaserge@mail.ru>
@@ -1274,10 +1274,10 @@
                 this.debug('📌 [Qu] trigger', { type, element, options });
             }
 
-            // Обновляем кеш событий, если элемент – это bus
-            if (element === this.bus) {
+            // уже есть в que
+            /* if (element === this.bus) {
                 this._firedEvents[type] = (this._firedEvents[type] || 0) + 1;
-            }
+            } */
 
             const event = new CustomEvent(type, { bubbles, cancelable, composed, detail: detail });
 
