@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.3
+ * Qu v1.2.4
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -46,7 +46,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.3',
+        version: '1.2.4',
 
         bus: document,
 
@@ -491,7 +491,7 @@
 
             const payload = this._buildWhenPayload(sub, eventName, detail, fromCache);
 
-            sub.callback(this, detail);
+            sub.callback(this, payload);
 
             this.trigger(this.bus, 'qu:when:resolve', {
                 detail: payload

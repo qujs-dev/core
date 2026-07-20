@@ -186,43 +186,35 @@ Que(function() {
 ## Example of extending an object at each nested step
 
 ```javascript
-Que(function() {
-    console.log('1️⃣ DOM ready');
-
+Que(() => {
     const user = { name: 'Player' };
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step1:done', { detail: user });
     }, 300);
 
-    Que(function(Qu, data) {
+    Que((Qu, payload) => {
+        const data = payload.detail;
         console.log('2️⃣ Received:', data);
         data.age = 13;
-
         setTimeout(() => {
             Qu.trigger(Qu.bus, 'step2:done', { detail: data });
         }, 300);
 
-        Que(function(Qu, data) {
+        Que((Qu, payload) => {
+            const data = payload.detail;
             console.log('3️⃣ Received:', data);
             data.city = 'Suncity';
-
             setTimeout(() => {
                 Qu.trigger(Qu.bus, 'step3:done', { detail: data });
             }, 300);
 
-            Que(function(Qu, data) { 
+            Que((Qu, payload) => {
+                const data = payload.detail;
                 console.log('4️⃣ Final object:', data);
-                console.log('Name:', data.name);
-                console.log('Age:', data.age);
-                console.log('City:', data.city);
             }, 'step3:done');
-
         }, 'step2:done');
-
     }, 'step1:done');
-
-}, 'qu:dom'); // can be omitted because 'qu:dom' is the default, or replaced with another event
+});
 ```
 
 ## Or independently
@@ -231,43 +223,33 @@ Que(function() {
 
 ```javascript
 Que(() => {
-    console.log('1️⃣ DOM ready');
-
     const user = { name: 'Player' };
-
-    // Step 1: trigger the event and pass the object
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step1:done', { detail: user });
     }, 300);
+});
 
-}); // 'qu:dom' by default
-
-// Step 2: wait for step1, get the object, add age
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('2️⃣ Received:', data);
     data.age = 13;
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step2:done', { detail: data });
     }, 300);
 }, 'step1:done');
 
-// Step 3: wait for step2, get the object, add city
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('3️⃣ Received:', data);
     data.city = 'Suncity';
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step3:done', { detail: data });
     }, 300);
 }, 'step2:done');
 
-// Step 4: wait for step3, final output
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('4️⃣ Final object:', data);
-    console.log('Name:', data.name);
-    console.log('Age:', data.age);
-    console.log('City:', data.city);
 }, 'step3:done');
 ```
 

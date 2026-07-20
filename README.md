@@ -173,86 +173,68 @@ Que(function() {
 
 ## Пример расширения объекта на каждом уровне вложенности
 ```javascript
-Que(function() {
-    console.log('1️⃣ DOM готов');
-
+Que(() => {
     const user = { name: 'Player' };
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step1:done', { detail: user });
     }, 300);
 
-    Que(function(Qu, data) {
+    Que((Qu, payload) => {
+        const data = payload.detail;
         console.log('2️⃣ Получили:', data);
         data.age = 13;
-
         setTimeout(() => {
             Qu.trigger(Qu.bus, 'step2:done', { detail: data });
         }, 300);
 
-        Que(function(Qu, data) {
+        Que((Qu, payload) => {
+            const data = payload.detail;
             console.log('3️⃣ Получили:', data);
             data.city = 'Suncity';
-
             setTimeout(() => {
                 Qu.trigger(Qu.bus, 'step3:done', { detail: data });
             }, 300);
 
-            Que(function(Qu, data) { 
+            Que((Qu, payload) => {
+                const data = payload.detail;
                 console.log('4️⃣ Финальный объект:', data);
-                console.log('Имя:', data.name);
-                console.log('Возраст:', data.age);
-                console.log('Город:', data.city);
             }, 'step3:done');
-
         }, 'step2:done');
-
     }, 'step1:done');
-
-}, 'qu:dom'); // можно без 'qu:dom' (тк оно по умолчанию) или другое событие
+});
 ```
 ## или независимо
 Вложенность `Que` неограничена. Вы можете строить цепочки любой глубины - как вложенные, так и независимые.
 
 ```javascript
 Que(() => {
-    console.log('1️⃣ DOM готов');
-
     const user = { name: 'Player' };
-
-    // Шаг 1: триггерим событие и передаём объект
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step1:done', { detail: user });
     }, 300);
-    
-}); // 'qu:dom' по умолчанию
+});
 
-// Шаг 2: ждём step1, получаем объект, добавляем age
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('2️⃣ Получили:', data);
     data.age = 13;
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step2:done', { detail: data });
     }, 300);
 }, 'step1:done');
 
-// Шаг 3: ждём step2, получаем объект, добавляем city
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('3️⃣ Получили:', data);
     data.city = 'Suncity';
-
     setTimeout(() => {
         Qu.trigger(Qu.bus, 'step3:done', { detail: data });
     }, 300);
 }, 'step2:done');
 
-// Шаг 4: ждём step3, финальный вывод
-Que(function(Qu, data) {
+Que((Qu, payload) => {
+    const data = payload.detail;
     console.log('4️⃣ Финальный объект:', data);
-    console.log('Имя:', data.name);
-    console.log('Возраст:', data.age);
-    console.log('Город:', data.city);
 }, 'step3:done');
 ```
 
