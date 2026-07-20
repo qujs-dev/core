@@ -41,10 +41,19 @@ if (!window.Que) {
         var originalDispatch = bus.dispatchEvent;
         var fired = window._QueFired || (window._QueFired = {});
         var queue = window._QueQ || (window._QueQ = []);
+        var details = window._QueDetails || (window._QueDetails = Object.create(null));
 
         bus.dispatchEvent = function (event) {
             if (event && event.type) {
                 fired[event.type] = (fired[event.type] || 0) + 1;
+
+                if (event.detail !== undefined) {
+                    details[event.type] = event.detail;
+
+					if (window.Qu && typeof window.Qu._touchEventCache === 'function') {
+						window.Qu._touchEventCache(event.type, event.detail);
+					}
+                }
             }
             return originalDispatch.call(bus, event);
         };
@@ -56,7 +65,7 @@ if (!window.Que) {
             queue.push([callback, ev, onceOrOptions, mode, useCache]);
         };
     })();
-};
+}
 ```
 
 This code must run before any calls to `Que(...)`. That is why it should be loaded first, synchronously, in `<head>` before any other scripts. This way, all `Que` calls and events that happen before the core is loaded will be captured and processed later. By default, `bus = document`. If you change `Qu.bus` during initialization, update the loader as well.
