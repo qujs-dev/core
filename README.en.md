@@ -74,17 +74,6 @@ var bus = (window.Qu && window.Qu.bus) || window;
 P.S. You can skip the loader — `qu.js` already contains a recovery mechanism for `window._QueQ`. However, in that case, events that happened before the core was loaded will not be cached, and `Que` will not be able to react to them if they have already fired.
 
 ## Libraries / application modules
-
-```html
-<link rel="stylesheet" href="/qu/core/css/qu.min.css"
-    media="print" onload="this.media='all'">
-
-<script src="/qu/lazy/lazy.min.js" async></script>
-<script src="/qu/core/qu.min.js" defer></script>
-```
-
-or via CDN:
-
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/qujs-dev/core@main/css/qu.min.css"
     media="print" onload="this.media='all'">

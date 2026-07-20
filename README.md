@@ -72,14 +72,6 @@ P.S. Можно не подключать — в `qu.js` есть механиз
 
 ## Библиотеки/прикладные модули
 ```html
-<link rel="stylesheet" href="/qu/core/css/qu.min.css"
-    media="print" onload="this.media='all'">
-
-<script src="/qu/lazy/lazy.min.js" async></script>
-<script src="/qu/core/qu.min.js" defer></script>
-```
-или с cdn:
-```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/qujs-dev/core@main/css/qu.min.css"
     media="print" onload="this.media='all'">
 
