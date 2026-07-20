@@ -48,9 +48,9 @@ if (!window.Que) {
                 if (event.detail !== undefined) {
                     details[event.type] = event.detail;
 
-					if (window.Qu && typeof window.Qu._touchEventCache === 'function') {
-						window.Qu._touchEventCache(event.type, event.detail);
-					}
+                    if (window.Qu && typeof window.Qu._touchEventCache === 'function') {
+                        window.Qu._touchEventCache(event.type, event.detail);
+                    }
                 }
             }
             return originalDispatch.call(bus, event);

@@ -491,7 +491,7 @@
 
             const payload = this._buildWhenPayload(sub, eventName, detail, fromCache);
 
-            sub.callback(this, payload);
+            sub.callback(this, detail);
 
             this.trigger(this.bus, 'qu:when:resolve', {
                 detail: payload
