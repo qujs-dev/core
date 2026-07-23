@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.4
+ * Qu v1.2.5
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -46,7 +46,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.4',
+        version: '1.2.5',
 
         bus: document,
 
@@ -565,6 +565,20 @@
                     lastEntry ? lastEntry.lastDetail : undefined,
                     true
                 );
+
+                if (!sub.once) {
+                    sub.triggered.clear();
+                    sub.step = 0;
+                    for (let i = 0; i < events.length; i++) {
+                        const eventName = events[i];
+                        if (!this._whenStore[eventName]) {
+                            this._whenStore[eventName] = [];
+                        }
+                        this._whenStore[eventName].push(sub);
+                        this._whenEnsureNative(eventName);
+                    }
+                    return id;
+                }
 
                 return id;
             }
