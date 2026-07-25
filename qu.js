@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.5
+ * Qu v1.2.6
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -46,7 +46,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.5',
+        version: '1.2.6',
 
         bus: document,
 
@@ -1718,150 +1718,199 @@
 
             this.trigger(element, 'qu:loading:after', { detail: eventData });
         },
-
-        scrollTo: function (element, options) {
+        
+        _lockScrollEvents: function(options) {
             options = options || {};
-
-            return new Promise((resolve) => {
-                if (!element || !element.scrollIntoView) {
-                    resolve(false);
-                    return;
-                }
-
-                const globalToken = ++this._globalScrollToken;
-
-                const settings = {
-                    hash: '',
-                    block: 'center',
-                    behavior: 'smooth',
-                    scrollEndDelay: 150,
-                    autoAdjust: true,
-                    autoAdjustThreshold: 0.8,
-                    autoAdjustFrom: 'center',
-                    autoAdjustTo: 'start',
-                    ...options
-                };
-
-                this.trigger(element, 'qu:scrollto:before', {
-                    detail: { element: element, options: settings }
-                });
-
-                if (settings.hash) {
-                    try {
-                        const newUrl = window.location.pathname + window.location.search + settings.hash;
-                        history.pushState(null, null, newUrl);
-                    } catch (e) {
-                        window.location.hash = settings.hash;
+            if (this._scrollEventsLocked) return;
+            this._scrollEventsLocked = true;
+        
+            const allowScrollContainers = options.allowScrollContainers !== false;
+        
+            const isScrollAllowed = (target) => {
+                const tag = target.tagName.toLowerCase();
+                if (['input', 'textarea', 'select'].includes(tag)) return true;
+        
+                if (allowScrollContainers) {
+                    let el = target;
+                    while (el && el !== document) {
+                        const style = window.getComputedStyle(el);
+                        const overflow = style.overflow + style.overflowY + style.overflowX;
+                        if (/(auto|scroll)/.test(overflow)) {
+                            const hasScroll = el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth;
+                            if (hasScroll) return true;
+                        }
+                        el = el.parentElement;
                     }
                 }
-
-                void element.offsetHeight;
-
-                let block = settings.block;
-
-                if (settings.autoAdjust && block === settings.autoAdjustFrom) {
-                    const elementHeight = element.offsetHeight;
-                    const viewportHeight = window.innerHeight;
-
-                    if (elementHeight > viewportHeight * settings.autoAdjustThreshold) {
-                        block = settings.autoAdjustTo;
-                    }
-                }
-
-                element.scrollIntoView({
-                    behavior: settings.behavior,
-                    block: block,
-                    inline: settings.inline
-                });
-
-                if (settings.behavior !== 'smooth') {
-                    setTimeout(() => {
-                        if (this._globalScrollToken !== globalToken) return;
-
-                        this.trigger(element, 'qu:scrollto:after', {
-                            detail: { element: element, options: settings }
-                        });
-
-                        resolve(true);
-                    }, 0);
-                    return;
-                }
-
-                let scrollStarted = false;
-                let scrollEndTimeout;
-
-                const onScrollCheck = () => {
-                    scrollStarted = true;
-                };
-
-                const handleScrollEnd = () => {
-                    clearTimeout(scrollEndTimeout);
-
-                    scrollEndTimeout = setTimeout(() => {
-                        if (this._globalScrollToken !== globalToken) return;
-
-                        window.removeEventListener('scroll', handleScrollEnd);
-
-                        this.trigger(element, 'qu:scrollto:after', {
-                            detail: { element: element, options: settings }
-                        });
-
-                        resolve(true);
-                    }, settings.scrollEndDelay);
-                };
-
-                window.addEventListener('scroll', onScrollCheck, { passive: true });
-                window.addEventListener('scroll', handleScrollEnd, { passive: true });
-
-                setTimeout(() => {
-                    window.removeEventListener('scroll', onScrollCheck);
-
-                    if (this._globalScrollToken !== globalToken) return;
-
-                    if (!scrollStarted) {
-                        clearTimeout(scrollEndTimeout);
-
-                        this.trigger(element, 'qu:scrollto:after', {
-                            detail: { element: element, options: settings }
-                        });
-
-                        resolve(true);
-                    }
-                }, 100);
-            });
+                return false;
+            };
+        
+            const preventScroll = (e) => {
+                if (e.defaultPrevented) return;
+                if (isScrollAllowed(e.target)) return;
+                e.preventDefault();
+                e.stopPropagation();
+            };
+        
+            this._scrollEventHandlers = {
+                wheel: preventScroll,
+                touchmove: preventScroll,
+                keydown: preventScroll
+            };
+        
+            document.addEventListener('wheel', preventScroll, { passive: false, capture: true });
+            document.addEventListener('touchmove', preventScroll, { passive: false, capture: true });
+            document.addEventListener('keydown', preventScroll, { passive: false, capture: true });
+        },
+        
+        _unlockScrollEvents: function() {
+            if (!this._scrollEventsLocked) return;
+            this._scrollEventsLocked = false;
+            const handlers = this._scrollEventHandlers;
+            if (handlers) {
+                document.removeEventListener('wheel', handlers.wheel, { capture: true });
+                document.removeEventListener('touchmove', handlers.touchmove, { capture: true });
+                document.removeEventListener('keydown', handlers.keydown, { capture: true });
+                this._scrollEventHandlers = null;
+            }
         },
 
-        scrollToAccurate: function (element, options) {
+        scrollTo: function(element, options) {
             options = options || {};
+            const lockEvents = options.lockEvents === true;
+        
+            const originalScrollTo = (el, opts) => {
+                return new Promise((resolve) => {
+                    if (!el || !el.scrollIntoView) {
+                        resolve(false);
+                        return;
+                    }
+        
+                    const settings = {
+                        hash: '',
+                        block: 'center',
+                        behavior: 'smooth',
+                        scrollEndDelay: 150,
+                        autoAdjust: true,
+                        autoAdjustThreshold: 0.8,
+                        autoAdjustFrom: 'center',
+                        autoAdjustTo: 'start',
+                        ...opts
+                    };
+        
+                    this.trigger(el, 'qu:scrollto:before', {
+                        detail: { element: el, options: settings }
+                    });
+        
+                    if (settings.hash) {
+                        try {
+                            const newUrl = window.location.pathname + window.location.search + settings.hash;
+                            history.pushState(null, null, newUrl);
+                        } catch (e) {
+                            window.location.hash = settings.hash;
+                        }
+                    }
+        
+                    void el.offsetHeight;
+        
+                    let block = settings.block;
+                    if (settings.autoAdjust && block === settings.autoAdjustFrom) {
+                        const elHeight = el.offsetHeight;
+                        const vh = window.innerHeight;
+                        if (elHeight > vh * settings.autoAdjustThreshold) {
+                            block = settings.autoAdjustTo;
+                        }
+                    }
+        
+                    el.scrollIntoView({
+                        behavior: settings.behavior,
+                        block: block,
+                        inline: settings.inline
+                    });
+        
+                    if (settings.behavior !== 'smooth') {
+                        setTimeout(() => {
+                            this.trigger(el, 'qu:scrollto:after', {
+                                detail: { element: el, options: settings }
+                            });
+                            resolve(true);
+                        }, 0);
+                        return;
+                    }
+        
+                    let scrollStarted = false;
+                    let scrollEndTimeout;
+        
+                    const onScrollCheck = () => { scrollStarted = true; };
+                    const handleScrollEnd = () => {
+                        clearTimeout(scrollEndTimeout);
+                        scrollEndTimeout = setTimeout(() => {
+                            window.removeEventListener('scroll', handleScrollEnd);
+                            this.trigger(el, 'qu:scrollto:after', {
+                                detail: { element: el, options: settings }
+                            });
+                            resolve(true);
+                        }, settings.scrollEndDelay);
+                    };
+        
+                    window.addEventListener('scroll', onScrollCheck, { passive: true });
+                    window.addEventListener('scroll', handleScrollEnd, { passive: true });
+        
+                    setTimeout(() => {
+                        window.removeEventListener('scroll', onScrollCheck);
+                        if (!scrollStarted) {
+                            clearTimeout(scrollEndTimeout);
+                            this.trigger(el, 'qu:scrollto:after', {
+                                detail: { element: el, options: settings }
+                            });
+                            resolve(true);
+                        }
+                    }, 100);
+                });
+            };
+        
+            if (!lockEvents) {
+                return originalScrollTo.call(this, element, options);
+            }
+        
+            const lockOpts = {
+                allowScrollContainers: options.allowScrollContainers !== false
+            };
+            this._lockScrollEvents(lockOpts);
+            return originalScrollTo.call(this, element, options)
+                .then((result) => {
+                    this._unlockScrollEvents();
+                    return result;
+                })
+                .catch((err) => {
+                    this._unlockScrollEvents();
+                    throw err;
+                });
+        },
 
+        scrollToAccurate: function(element, options) {
+            options = options || {};
+        
             const settings = {
                 hash: '',
                 block: 'center',
                 behavior: 'smooth',
+                lockEvents: true,
+                allowScrollContainers: true,
                 ...options
             };
-
+        
             if (settings.behavior !== 'smooth') {
                 return this.scrollTo(element, settings);
             }
-
-            const startGlobalToken = this._globalScrollToken + 1;
-            const accurateToken = (element._accurateToken = (element._accurateToken || 0) + 1);
-
-            return this.scrollTo(element, settings).then((result) => {
-                if (result === false || this._globalScrollToken !== startGlobalToken) {
-                    return false;
-                }
-
-                if (element._accurateToken !== accurateToken) {
-                    return false;
-                }
-
-                return this.scrollTo(element, {
-                    block: settings.block,
-                    behavior: settings.behavior
+        
+            return this.scrollTo(element, settings)
+                .then((result) => {
+                    return result;
+                })
+                .catch((err) => {
+                    throw err;
                 });
-            });
         },
 
         dragScroll: function (container, options) {

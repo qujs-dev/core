@@ -1,0 +1,1124 @@
+
+<!DOCTYPE html>
+<html lang="ru-RU">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="index, follow">
+    <title itemprop="headline">Liker</title>
+    <meta name="description" itemprop="description" content="">
+        
+        
+    <meta property="og:url" content="https://qujs.ru/liker/"/>
+    <meta property="og:title" content="Liker"/>
+    <meta property="og:description" content=""/>
+    <meta property="og:type" content="website"/>
+    
+    <link rel="shortcut icon" href="/assets/favicon.png" type="image/png">
+    <meta name="yandex-verification" content="caad01ea1c85d4b9" />
+    
+<script>
+window.QuExtend = window.QuExtend || [];
+window.QuExtend.push(function(Qu) {
+    Qu._debug = true; // todo в тестс
+});
+
+if (!window.Que) {
+    (function () {
+        var bus = (window.Qu && window.Qu.bus) || document;
+        var originalDispatch = bus.dispatchEvent;
+        var fired = window._QueFired || (window._QueFired = {});
+        var queue = window._QueQ || (window._QueQ = []);
+        var details = window._QueDetails || (window._QueDetails = Object.create(null));
+
+        bus.dispatchEvent = function (event) {
+            if (event && event.type) {
+                fired[event.type] = (fired[event.type] || 0) + 1;
+
+                if (event.detail !== undefined) {
+                    details[event.type] = event.detail;
+
+					if (window.Qu && typeof window.Qu._touchEventCache === 'function') {
+						window.Qu._touchEventCache(event.type, event.detail);
+					}
+                }
+            }
+            return originalDispatch.call(bus, event);
+        };
+
+        window.Que = function (callback, ev, onceOrOptions, mode, useCache) {
+            if (window.Qu && typeof window.Qu.when === 'function') {
+                return window.Qu.when(callback, ev, onceOrOptions, mode, useCache);
+            }
+            queue.push([callback, ev, onceOrOptions, mode, useCache]);
+        };
+    })();
+}
+
+</script>
+
+
+    <link
+          rel="preload"
+         href="/ui/fonts/nunito-sans/latin.woff2"
+         crossorigin
+         as="font"
+         type="font/woff2"
+    >
+
+    <link
+        rel="preload"
+		href="/ui/fonts/nunito-sans/cyrilic.woff2"
+        crossorigin
+        as="font"
+        type="font/woff2"
+    >
+    
+    <!--
+<link id="qu-css" href="/assets/components/modxminify/cache/styles-1-1782949765.min.css" rel="preload" as="style" onload="this.rel='stylesheet'">
+    -->
+    <link rel="preload" href="/assets/components/modxminify/cache/styles-1-1782949765.min.css" as="style" fetchpriority="high">
+    <link rel="stylesheet" href="/assets/components/modxminify/cache/styles-1-1782949765.min.css" type="text/css">
+
+    <link rel="preload" href="/ui/img/des/cloud.svg" as="image"  type="image/svg+xml">
+    <link rel="prefetch" href="/ui/img/des/ship3.png">
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.2.5/css/qu.min.css" media="print" onload="this.media='all'">
+       
+    <!--
+    
+    <script src="/ui/js/lazy.js" async></script>
+    <script src="https://cdn.jsdelivr.net/gh/qujs-dev/lazy@1.0.0/lazy.min.js" async></script>
+ 
+    
+       <script src="/ui/js/qu.js" defer></script>
+     -->
+    
+    <script src="https://cdn.jsdelivr.net/gh/qujs-dev/core@1.2.5/qu.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/qujs-dev/lazy@1.0.1/lazy.min.js" async></script>
+    
+    
+    
+     <!--  
+    <script src="/ui/js/code-highlights.js" async></script>
+ 
+    
+    -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css" media="print" onload="this.media='all'">
+
+    <script src="/ui/js/firstscreen.js?v=1782948850" async></script>
+
+    
+<style>
+img[loading="lazy"]:not(.no-lazyloaded) {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+img[loading="lazy"].lazyloaded {
+    opacity: 1;
+}
+</style>
+
+<script>
+Que(function() {
+    Qu.libs(['Lazy'], { autoInit: true, initParams: {} }).then(function(loadedLibs) {
+        console.log('lazy alredy')
+    });
+});
+</script>
+    
+</head>
+
+
+<body class="">
+    
+    
+<div class="firstscreen bg-primary text-white position-relative" id="js-firstscreen">
+    
+    <div class="firstscreen__ship"></div>
+    
+    <div class="firstscreen__mw position-relative h-100">
+        <div class="firstscreen__bordertop"></div>
+        <div class="firstscreen__borderleft"></div>
+        <div class="firstscreen__borderright"></div>
+        
+        <div class="container-xxl h-100 d-flex justify-content-center align-items-center">
+            <div class="firstscreen__maintext text-color-white font-nunito">
+                
+                <div class="is-run">
+                
+                <span class="cursor-default"><span class="is-accent text-info" data-run-hover>Qu.</span>Liker</span>
+                
+                </div>
+                
+                
+                
+                <div class="firstscreen__subtitle ">
+                    <h1>
+                    Лайки и реакции
+                    </h1>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="firstscreen__nums">
+        <div class="firstscreen__num is-1"><div></div></div>
+        <div class="firstscreen__num is-2"><div></div></div>
+        <div class="firstscreen__num is-3"><div></div></div>
+    </div>
+    <div class="firstscreen__clouds">
+        <div class="firstscreen__cloud_1"></div>
+        <div class="firstscreen__cloud_2"></div>
+    </div>
+</div>
+
+    
+<style>
+
+.nav-link-custom {
+    color: #495057;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    position: relative;
+}
+.nav-link-custom:hover,
+.nav-link-custom.active {
+    color: #0d6efd;
+}
+.nav-link-custom.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #0d6efd;
+}
+.dropdown-item-custom:hover {
+    background-color: #e7f1ff;
+}
+/* По умолчанию логотип прозрачен */
+.navbar-brand {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* Когда меню закреплено — показываем логотип */
+.navbar-stuck .navbar-brand {
+    opacity: 1;
+}
+</style>
+<nav class="navbar navbar-expand-lg bg-white sticky-top border-bottom- py-2" data-qu-lazy-js='["/ui/js/main-menu.js?v=1783418901"]'>
+    <div class="container-xxl">
+        <a class="navbar-brand fw-bold fs-3" href="#js-firstscreen">Qu<span class="text-primary">.</span>js</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link nav-link-custom  px-2 " href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-custom px-2 " href="/api/">API</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-link-custom dropdown-toggle px-2" href="#" data-bs-toggle="dropdown">
+                        Модули
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-custom px-2">
+                        <li><a class="dropdown-item dropdown-item-custom " href="/lazy/">Lazy</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/que/">Que</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/waypoints/">Waypoints</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/frame/">Frame</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/frame/gallery/">Frame Gallery</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/notifyer/">Notifyer</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/attach/">Attach</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/richtext/">Richtext</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom active" href="/liker/">LIker</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/grecaptcha/">GreCaptcha</a></li>
+                        <li><a class="dropdown-item dropdown-item-custom " href="/yasmartcaptcha/">YaSmartCaptcha</a></li>
+
+                        
+                    </ul>
+                </li>
+                <li class="nav-item dropdown ">
+                    <a class="nav-link nav-link-custom dropdown-toggle px-2 " href="#" data-bs-toggle="dropdown">Интеграция</a>
+                    <ul class="dropdown-menu px-2">
+                        <li><a class="dropdown-item  " href="/how-to-create-module/">Создание модулей</a></li>
+                        <li><a class="dropdown-item" href="#">Запуск без Qu.js</a></li>
+                        <li><a class="dropdown-item" href="#">Примеры</a></li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <div class="d-flex gap-2">
+                <span class="badge bg-secondary align-self-center">1.0.2</span>
+                <a href="https://github.com/qujs-dev/liker" target="_blank" class="btn btn-outline-secondary btn-sm">GitHub</a>
+                <!--
+                <a href="#" class="btn btn-outline-secondary btn-sm">EN/RU</a>
+                -->
+            </div>
+        </div>
+    </div>
+</nav>
+
+    
+    
+
+
+
+<div class="container-xxl mt-5">
+    
+    <div class="row g-7">
+        
+<style>
+.menu-container-custom {
+    position: sticky;
+    top: 115px;
+    height: calc(100vh - 115px);
+    overflow-y: auto;
+}
+@media (max-width: 991.98px) {
+    .menu-container-custom {
+        position: relative;
+        top: auto;
+        height: auto;
+        overflow-y: unset;
+    }
+    
+}
+</style>
+        <div class="col col-lg-4 col-xl-3">
+            <div class=" pe-2 menu-container-custom">
+                <div class="list-group mb-4" data-qu-lazy-js='[ "/ui/js/custom-menu.js?v=1784586506" ]'>
+    
+    <!-- ===== ОБЗОР ===== -->
+    
+<a href="#view" class="list-group-item list-group-item-action ps-7">Обзор</a>
+
+    
+    <!-- ===== УСТАНОВКА И ПОДКЛЮЧЕНИЕ ===== -->
+    
+<a href="#install" class="list-group-item list-group-item-action ps-7">Подключение</a>
+
+    
+    <!-- ===== КОНФИГУРАЦИЯ ===== -->
+    
+<div class="list-group-item p-0">
+    <div class="bg-light fw-bold text-dark p-2 d-flex align-items-center">
+        <div class="me-3" style="width: 24px;">
+            🛠️
+        </div>
+        <div class="lh-sm flex-grow-1 d-flex justify-content-between align-items-center">
+            <span>Конфигурация</span>
+            
+        </div>
+    </div>
+</div>
+
+    
+<a href="#config-global" class="list-group-item list-group-item-action ps-7">Глобальная конфигурация</a>
+
+    
+<a href="#config-data" class="list-group-item list-group-item-action ps-7">Data-атрибуты элементов</a>
+
+    
+    <!-- ===== API (ПУБЛИЧНЫЕ МЕТОДЫ) ===== -->
+    
+<div class="list-group-item p-0">
+    <div class="bg-light fw-bold text-dark p-2 d-flex align-items-center">
+        <div class="me-3" style="width: 24px;">
+            🔧
+        </div>
+        <div class="lh-sm flex-grow-1 d-flex justify-content-between align-items-center">
+            <span>API</span>
+            
+        </div>
+    </div>
+</div>
+
+    
+<a href="#api-init" class="list-group-item list-group-item-action ps-7">init()</a>
+
+    
+<a href="#api-config" class="list-group-item list-group-item-action ps-7">config()</a>
+
+    
+<a href="#api-types" class="list-group-item list-group-item-action ps-7">{`Типы голосования`}</a>
+
+    
+<a href="#api-registerType" class="list-group-item list-group-item-action ps-7">registerType()</a>
+
+    
+<a href="#api-sync" class="list-group-item list-group-item-action ps-7">syncFromServer()</a>
+
+    
+<a href="#api-debug" class="list-group-item list-group-item-action ps-7">debug()</a>
+
+    
+    <!-- ===== СОБЫТИЯ ===== -->
+    
+<div class="list-group-item p-0">
+    <div class="bg-light fw-bold text-dark p-2 d-flex align-items-center">
+        <div class="me-3" style="width: 24px;">
+            📡
+        </div>
+        <div class="lh-sm flex-grow-1 d-flex justify-content-between align-items-center">
+            <span>События</span>
+            
+        </div>
+    </div>
+</div>
+
+    
+<a href="#event-beforeVote" class="list-group-item list-group-item-action ps-7">liker:beforeVote</a>
+
+    
+<a href="#event-afterVote" class="list-group-item list-group-item-action ps-7">liker:afterVote</a>
+
+    
+<a href="#event-beforeInit" class="list-group-item list-group-item-action ps-7">liker:beforeInit</a>
+
+    
+    
+<div class="list-group-item p-0">
+    <div class="bg-light fw-bold text-dark p-2 d-flex align-items-center">
+        <div class="me-3" style="width: 24px;">
+            🎨
+        </div>
+        <div class="lh-sm flex-grow-1 d-flex justify-content-between align-items-center">
+            <span>Шаблоны</span>
+            
+        </div>
+    </div>
+</div>
+
+    
+<a href="#templates" class="list-group-item list-group-item-action ps-7">HTML-шаблоны и кастомизация</a>
+
+</div>
+            </div>
+        </div>
+        
+        <div class="col col-lg-8 col-xl-9">
+
+<section id="view">
+    <h2>Обзор Qu.Liker</h2>
+    <p>
+        <strong>Qu.Liker</strong> — это плагин для организации голосований, рейтингов и оценок на веб-страницах. Он предоставляет готовые UI-компоненты с различными типами взаимодействия: лайки, звёздный рейтинг, эмодзи-реакции и «пальцы вверх/вниз». 
+    </p>
+    <p>
+        Плагин умеет сохранять голоса пользователей в <code>localStorage</code>, синхронизировать состояние между вкладками через <code>BroadcastChannel</code> и отправлять данные на сервер для постоянного хранения.
+    </p>
+
+    <h3>Основные возможности</h3>
+    <ul>
+        <li><strong>4 типа голосования</strong>: 
+            <ul>
+                <li><code>like</code> — классический лайк (кнопка + счётчик).</li>
+                <li><code>stars</code> — звёздный рейтинг (от 1 до 5 звёзд).</li>
+                <li><code>emoji</code> — выбор эмодзи с выпадающей палитрой.</li>
+                <li><code>thumbs</code> — оценка «пальцем вверх/вниз».</li>
+            </ul>
+        </li>
+        <li><strong>Сохранение состояния</strong>: голоса пользователей хранятся в <code>localStorage</code>.</li>
+        <li><strong>Синхронизация между вкладками</strong>: через <code>BroadcastChannel</code>.</li>
+        <li><strong>Интеграция с сервером</strong>: отправка голосов на сервер через <code>POST</code>-запрос.</li>
+        <li><strong>Поддержка капчи</strong>: защита от спама (опционально).</li>
+        <li><strong>Гибкая настройка</strong> через глобальный конфиг и <code>data-*</code> атрибуты.</li>
+        <li><strong>Кастомизация через CSS-переменные</strong>: можно полностью изменить внешний вид.</li>
+        <li><strong>Уведомления</strong>: через Qu.Notifyer (или fallback на <code>alert</code> и свою реализацию).</li>
+    </ul>
+
+    <h3>Структура данных</h3>
+    <p>
+        Плагин использует следующие ключевые поля для идентификации голосования:
+    </p>
+    <ul>
+        <li><code>target_id</code> — ID объекта (например, ID записи).</li>
+        <li><code>target_key</code> — строковый ключ (например, <code>'post'</code>).</li>
+        <li><code>type</code> — тип голосования (<code>'like'</code>, <code>'stars'</code> и т.д.).</li>
+        <li><code>tag</code> — дополнительный тег для группировки.</li>
+    </ul>
+    <p>
+        Эти поля формируют композитный ключ, по которому сохраняется голос пользователя в <code>localStorage</code>.
+    </p>
+
+    
+<blockquote  class="blockquote border-start border-4 border-info bg-light bg-opacity-50  ps-4 pe-1 py-3 fs-6 my-3 ">
+    
+        <p class="fw-bold h5">💡 Совет</p>
+        <p>
+            Используйте Liker для любых элементов, где требуется обратная связь от пользователя: посты, комментарии, товары, фотографии. Плагин легко адаптируется под любой дизайн через CSS-переменные.
+        </p>
+        
+</blockquote>
+
+</section>
+<section id="install">
+    <h2>Подключение (рекомендуемый способ)</h2>
+    <p>
+        Самый простой и надёжный способ — подключить плагин через ядро <code>Qu</code>.
+        Ядро автоматически зарегистрирует плагин через <code>Qu.lib()</code>.
+    </p>
+
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-comment">&lt;!-- Подключаем плагин Liker --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdn.jsdelivr.net/gh/qujs-dev/liker@latest/liker.min.js"</span> <span class="hljs-attr">async</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4"><span class="hljs-comment">&lt;!-- Подключаем ядро Qu + загрузчик Que где-то сверху --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdn.jsdelivr.net/gh/qujs-dev/core@latest/qu.min.js"</span> <span class="hljs-attr">defer</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7"><span class="hljs-comment">&lt;!-- инициализируем плагин --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8"><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript"></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">Que(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">    Qu.libs([<span class="hljs-string">"Liker"</span>], {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">        <span class="hljs-attr">autoInit</span>: <span class="hljs-literal">true</span>,</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">        <span class="hljs-attr">initParams</span>: {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">            <span class="hljs-attr">Liker</span>: {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">                <span class="hljs-attr">action_url</span>: <span class="hljs-string">'/api/vote'</span>,</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">                <span class="hljs-comment">// ... остальные настройки</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16">            }</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">        }</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">    }).then(<span class="hljs-function">(<span class="hljs-params">{ Liker }</span>) =&gt;</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Liker загружен'</span>);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">    });</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">});</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+    <p>
+        После регистрации плагин становится доступен как <code>Qu.Liker</code>.
+    </p>
+    
+    
+<blockquote  class="blockquote border-start border-4 border-info bg-light bg-opacity-50  ps-4 pe-1 py-3 fs-6 my-3 ">
+    
+        <p class="fw-bold h5">⚠️ Важно</p>
+        <p>
+            Для работы плагина <strong>обязательно</strong> укажите <code>action_url</code> — эндпоинт на сервере, который будет обрабатывать голоса. Без этого плагин не сможет сохранять данные на сервере.<br><b>Серверная часть не включена в плагин</b>.
+        </p>
+        
+</blockquote>
+
+</section>
+<hr>
+
+<section id="config-global">
+    <h2>Глобальная конфигурация</h2>
+    <p>
+        Вы можете задать общие настройки для плагина через <code>Qu.Liker.config(options)</code> или передать их через <code>initParams</code> в <code>Qu.libs()</code>.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="table-light text-nowrap"><th>Параметр</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>action_url</code></td>
+                    <td><code>string</code></td>
+                    <td><code>''</code></td>
+                    <td><strong>Обязательный</strong> URL серверного обработчика голосов.</td>
+                </tr>
+                <tr>
+                    <td><code>use_grecaptcha</code></td>
+                    <td><code>boolean</code></td>
+                    <td><code>false</code></td>
+                    <td>Включить reCAPTCHA (требуется плагин Qu.GreCaptcha).</td>
+                </tr>
+                <tr>
+                    <td><code>gre_captcha_action</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'liker'</code></td>
+                    <td>Действие для reCAPTCHA.</td>
+                </tr>
+                <tr>
+                    <td><code>gre_captcha_token_input</code></td>
+                    <td><code>string</code></td>
+                    <td><code>''</code></td>
+                    <td>Имя поля для токена reCAPTCHA (если не указано, используется <code>g-recaptcha-response</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>storage_key</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'liker_votes'</code></td>
+                    <td>Ключ в localStorage для хранения голосов.</td>
+                </tr>
+                <tr>
+                    <td><code>channel_key</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'liker_voted'</code></td>
+                    <td>Ключ BroadcastChannel для синхронизации между вкладками.</td>
+                </tr>
+                <tr>
+                    <td><code>sync_match_fields</code></td>
+                    <td><code>string[]</code></td>
+                    <td><code>['target_id', 'target_key', 'type', 'tag']</code></td>
+                    <td>Поля, по которым строится композитный ключ голоса.</td>
+                </tr>
+                <tr>
+                    <td><code>action_field</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'action'</code></td>
+                    <td>Имя поля в FormData, определяющее действие.</td>
+                </tr>
+                <tr>
+                    <td><code>action_value</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'like'</code></td>
+                    <td>Значение для поля <code>action_field</code> при голосовании.</td>
+                </tr>
+                <tr>
+                    <td><code>action_valueSync</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'total'</code></td>
+                    <td>Значение для синхронизации с сервером.</td>
+                </tr>
+                <tr>
+                    <td><code>value_field</code></td>
+                    <td><code>string</code></td>
+                    <td><code>'value'</code></td>
+                    <td>Имя поля для отправки значения голоса.</td>
+                </tr>
+                <tr>
+                    <td><code>store_fields</code></td>
+                    <td><code>string[]</code></td>
+                    <td><code>['user_value']</code></td>
+                    <td>Поля, которые сохраняются в localStorage.</td>
+                </tr>
+                <tr>
+                    <td><code>observer_root</code></td>
+                    <td><code>string | Element | NodeList</code></td>
+                    <td><code>null</code></td>
+                    <td>Корневой элемент для MutationObserver (по умолчанию <code>document.body</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>disableNotifier</code></td>
+                    <td><code>boolean</code></td>
+                    <td><code>false</code></td>
+                    <td>Отключить уведомления (Notifier).</td>
+                </tr>
+                <tr>
+                    <td><code>lexicon</code></td>
+                    <td><code>object</code></td>
+                    <td><code>{ success: 'Успех', error: 'Ошибка', ... }</code></td>
+                    <td>Тексты для уведомлений.</td>
+                </tr>
+                <tr>
+                    <td><code>notifyer</code></td>
+                    <td><code>object</code></td>
+                    <td><code>{ default: {...}, success: {...}, error: {...} }</code></td>
+                    <td>Настройки уведомлений (передаются в Qu.Notifyer).</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Пример настройки</h3>
+    <div class="pre-code"><pre class="hljs typescript"><code class="hljs language-typescript" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-keyword">var</span> likerConfig = {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">    action_url: <span class="hljs-string">'/api/vote'</span>,</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">    disableNotifier: <span class="hljs-literal">true</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">};</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">Qu.libs([<span class="hljs-string">'Liker'</span>], {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    autoInit: <span class="hljs-literal">true</span>,</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    initParams: {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">        Liker: likerConfig</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">    }</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">}).then(<span class="hljs-function">(<span class="hljs-params">{ <span class="hljs-params">Liker</span> }</span>) =&gt;</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Liker загружен'</span>);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">});</td></tr></tbody></table></code></pre></div>
+</section>
+<section id="config-data">
+    <h2>Data-атрибуты элементов</h2>
+    <p>
+        Все настройки можно задавать прямо в HTML через <code>data-qu-liker-*</code> атрибуты. Это позволяет создавать разные голосования с уникальными параметрами.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="table-light text-nowrap"><th>Атрибут</th><th>Значение</th><th>Назначение</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>data-qu-liker</code></td>
+                    <td><code>true</code></td>
+                    <td>Активирует плагин на элементе.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-type</code></td>
+                    <td><code>'like'</code>, <code>'stars'</code>, <code>'emoji'</code>, <code>'thumbs'</code></td>
+                    <td>Тип голосования.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-target-id</code></td>
+                    <td>число или строка</td>
+                    <td>ID объекта (например, ID поста).</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-target-key</code></td>
+                    <td>строка</td>
+                    <td>Ключ объекта (например, <code>'post'</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-tag</code></td>
+                    <td>строка</td>
+                    <td>Дополнительный тег.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-action-url</code></td>
+                    <td>URL</td>
+                    <td>Переопределяет глобальный <code>action_url</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-max</code></td>
+                    <td>число</td>
+                    <td>Максимальное количество звёзд (для типа <code>stars</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-current</code></td>
+                    <td>число</td>
+                    <td>Начальное значение (текущий рейтинг).</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-total</code></td>
+                    <td>число</td>
+                    <td>Начальное количество голосов.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-inherit</code></td>
+                    <td><code>true</code> / <code>false</code></td>
+                    <td>Наследовать параметры от родительского элемента (по умолчанию <code>true</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-use-grecaptcha</code></td>
+                    <td><code>true</code> / <code>false</code></td>
+                    <td>Включает reCAPTCHA для этого элемента.</td>
+                </tr>
+                <tr>
+                    <td><code>data-qu-liker-field</code></td>
+                    <td>строка (путь к полю в ответе)</td>
+                    <td>Обновляет содержимое элемента из данных ответа сервера.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Пример использования</h3>
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-comment">&lt;!-- Лайк для поста с ID 123 --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"like"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"123"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"post"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">     <span class="hljs-attr">data-qu-liker-total</span>=<span class="hljs-string">"42"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">     <span class="hljs-attr">data-qu-liker-action-url</span>=<span class="hljs-string">"/api/like"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">data-qu-liker-btn</span>=<span class="hljs-string">"like"</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"1"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-icon liker-icon--empty"</span>&gt;</span>❤️<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-icon liker-icon--filled"</span>&gt;</span>❤️<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_likes"</span>&gt;</span>0<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">    <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"><span class="hljs-comment">&lt;!-- Звёздный рейтинг для товара --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"stars"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"456"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"product"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">     <span class="hljs-attr">data-qu-liker-max</span>=<span class="hljs-string">"5"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">     <span class="hljs-attr">data-qu-liker-current</span>=<span class="hljs-string">"4.5"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="24"><div class="hljs-ln-n" data-line-number="24"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="24">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-stars-container</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="25"><div class="hljs-ln-n" data-line-number="25"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="25">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="26"><div class="hljs-ln-n" data-line-number="26"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="26">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="27"><div class="hljs-ln-n" data-line-number="27"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="27">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="28"><div class="hljs-ln-n" data-line-number="28"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="28">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="29"><div class="hljs-ln-n" data-line-number="29"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="29">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="30"><div class="hljs-ln-n" data-line-number="30"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="30">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="31"><div class="hljs-ln-n" data-line-number="31"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="31">    <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"avg_rating"</span>&gt;</span>0.0<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="32"><div class="hljs-ln-n" data-line-number="32"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="32">    (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_votes"</span>&gt;</span>0<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="33"><div class="hljs-ln-n" data-line-number="33"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="33"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+</section>
+<hr>
+<section id="api-init">
+    <h2>Qu.Liker.init(quInstance, params)</h2>
+    <p>
+        Инициализирует плагин. <strong>Обычно вызывается автоматически</strong> при регистрации через <code>Qu.lib()</code> (если <code>autoInit: true</code>). Ручной вызов редко требуется.
+    </p>
+    <h3>Сигнатура</h3>
+    <div class="pre-code"><pre class="hljs css"><code class="hljs language-css" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-selector-tag">Qu</span><span class="hljs-selector-class">.Liker</span><span class="hljs-selector-class">.init</span>(<span class="hljs-selector-tag">quInstance</span>, <span class="hljs-selector-tag">params</span>)</td></tr></tbody></table></code></pre></div>
+    <h3>Параметры</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr><th>Параметр</th><th>Тип</th><th>По умолчанию</th><th>Описание</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>quInstance</code></td><td><code>object</code></td><td>—</td><td>Экземпляр Qu.</td></tr>
+                <tr><td><code>params</code></td><td><code>object</code></td><td><code>{}</code></td><td>Настройки (сливаются с глобальной конфигурацией).</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>Возвращаемое значение</h3>
+    <p>Ничего не возвращает.</p>
+</section>
+
+<section id="api-config">
+    <h2>Qu.Liker.config(options)</h2>
+    <p>
+        Обновляет глобальную конфигурацию плагина.
+    </p>
+    <h3>Сигнатура</h3>
+    <div class="pre-code"><pre class="hljs css"><code class="hljs language-css" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-selector-tag">Qu</span><span class="hljs-selector-class">.Liker</span><span class="hljs-selector-class">.config</span>(<span class="hljs-selector-tag">options</span>)</td></tr></tbody></table></code></pre></div>
+    <h3>Параметры</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead><tr><th>Параметр</th><th>Тип</th><th>Описание</th></tr></thead>
+            <tbody>
+                <tr><td><code>options</code></td><td><code>object</code></td><td>Частичный объект с настройками.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>Возвращаемое значение</h3>
+    <p><code>this</code> — для цепочки вызовов.</p>
+</section>
+
+<section id="api-types">
+    <h2>Типы голосования</h2>
+    <p>
+        Плагин поддерживает 4 встроенных типа. Вы можете зарегистрировать свои через <code>Qu.Liker.registerType()</code>.
+    </p>
+
+    <h3>1. <code>like</code> — классический лайк</h3>
+    <ul>
+        <li>Одна кнопка, по клику добавляется +1 к счётчику.</li>
+        <li>При повторном клике снимается лайк.</li>
+        <li>UI: кнопка с иконкой и счётчиком.</li>
+    </ul>
+    <p>Атрибуты:</p>
+    <ul>
+        <li><code>data-qu-liker-btn="like"</code> — кнопка лайка.</li>
+        <li><code>data-qu-liker-field="total_likes"</code> — отображение количества лайков.</li>
+    </ul>
+
+    <h3>2. <code>stars</code> — звёздный рейтинг</h3>
+    <ul>
+        <li>Выбор от 1 до <code>max</code> звёзд.</li>
+        <li>Отображает средний рейтинг и количество голосов.</li>
+        <li>Поддерживает дробные значения (например, 4.5).</li>
+    </ul>
+    <p>Атрибуты:</p>
+    <ul>
+        <li><code>data-qu-liker-stars-container</code> — контейнер со звёздами.</li>
+        <li><code>data-qu-liker-star</code> — каждая звезда.</li>
+        <li><code>data-qu-liker-field="avg_rating"</code> — средняя оценка.</li>
+        <li><code>data-qu-liker-field="total_votes"</code> — количество голосов.</li>
+    </ul>
+
+    <h3>3. <code>emoji</code> — реакции эмодзи</h3>
+    <ul>
+        <li>Отображает текущий выбранный эмодзи.</li>
+        <li>При клике открывается палитра с вариантами.</li>
+    </ul>
+    <p>Атрибуты:</p>
+    <ul>
+        <li><code>data-qu-liker-emoji-trigger</code> — кнопка, открывающая палитру.</li>
+        <li><code>data-qu-liker-emoji-palette</code> — контейнер с вариантами эмодзи.</li>
+        <li><code>data-qu-liker-emoji-value</code> — каждый вариант эмодзи (значение).</li>
+    </ul>
+
+    <h3>4. <code>thumbs</code> — «пальцы вверх/вниз»</h3>
+    <ul>
+        <li>Две кнопки: 👍 и 👎.</li>
+        <li>Отображает сумму голосов (разницу).</li>
+    </ul>
+    <p>Атрибуты:</p>
+    <ul>
+        <li><code>data-qu-liker-btn="thumbs-up"</code> — кнопка «вверх».</li>
+        <li><code>data-qu-liker-btn="thumbs-down"</code> — кнопка «вниз».</li>
+        <li><code>data-qu-liker-thumbs-class</code> — класс для отображения результата.</li>
+    </ul>
+</section>
+
+<section id="api-registerType">
+    <h2>Qu.Liker.registerType(typeName, handler)</h2>
+    <p>
+        Регистрирует новый тип голосования.
+    </p>
+    <h3>Сигнатура</h3>
+    <div class="pre-code"><pre class="hljs php"><code class="hljs language-php" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1">Qu.Liker.registerType(<span class="hljs-string">'myType'</span>, { initUI, handleClick, updateUI, setVotedState })</td></tr></tbody></table></code></pre></div>
+    <h3>Параметры</h3>
+    <p>Объект-обработчик может содержать методы:</p>
+    <ul>
+        <li><code>initUI(instance)</code> — инициализация UI.</li>
+        <li><code>handleClick(instance, target, event)</code> — обработка кликов.</li>
+        <li><code>handleVote(instance, value)</code> — обработка голоса.</li>
+        <li><code>updateUI(instance, data)</code> — обновление UI после голосования.</li>
+        <li><code>setVotedState(instance, userValue)</code> — установка состояния «проголосовано».</li>
+    </ul>
+    <h3>Пример</h3>
+    <div class="pre-code"><pre class="hljs typescript"><code class="hljs language-typescript" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1">Qu.Liker.registerType(<span class="hljs-string">'color'</span>, {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">    initUI(inst) {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">        inst.picker = inst.element.querySelector(<span class="hljs-string">'[data-qu-liker-color-picker]'</span>);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">        inst.picker?.addEventListener(<span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">            inst._vote(inst.picker.value);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">        });</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    },</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    handleVote(inst, value) {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">        inst._vote(value);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">    },</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">    updateUI(inst, data) {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">        inst.element.style.backgroundColor = data.color;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">    }</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">});</td></tr></tbody></table></code></pre></div>
+</section>
+
+<section id="api-sync">
+    <h2>Qu.Liker.syncFromServer()</h2>
+    <p>
+        Синхронизирует локальное хранилище с сервером. Отправляет запрос на <code>action_url</code> с параметром <code>action=total</code> и обновляет все голоса.
+    </p>
+    <h3>Сигнатура</h3>
+    <div class="pre-code"><pre class="hljs css"><code class="hljs language-css" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-selector-tag">Qu</span><span class="hljs-selector-class">.Liker</span><span class="hljs-selector-class">.syncFromServer</span>()</td></tr></tbody></table></code></pre></div>
+    <h3>Возвращаемое значение</h3>
+    <p><code>Promise</code>, который разрешается с объектом голосов с сервера.</p>
+    <h3>Пример</h3>
+    <div class="pre-code"><pre class="hljs javascript"><code class="hljs language-javascript" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2"><span class="hljs-comment">// Синхронизация при загрузке страницы</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">Que(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">    Qu.libs([<span class="hljs-string">'Liker'</span>], { <span class="hljs-attr">autoInit</span>: <span class="hljs-literal">true</span> }).then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">        <span class="hljs-keyword">return</span> Qu.Liker.syncFromServer();</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    }).then(<span class="hljs-function"><span class="hljs-params">votes</span> =&gt;</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Голоса синхронизированы'</span>, votes);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    });</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">});</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        </td></tr></tbody></table></code></pre></div>
+</section>
+
+<section id="api-debug">
+    <h2>Qu.Liker.debug(...args)</h2>
+    <p>
+        Выводит отладочные сообщения, если включён режим <code>_debug</code> (так же можно включить через <code>?_qu-liker-debug=1</code>).
+    </p>
+    <h3>Сигнатура</h3>
+    <div class="pre-code"><pre class="hljs css"><code class="hljs language-css" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-selector-tag">Qu</span><span class="hljs-selector-class">.Liker</span><span class="hljs-selector-class">.debug</span>(<span class="hljs-selector-tag">message</span>, ..<span class="hljs-selector-class">.args</span>)</td></tr></tbody></table></code></pre></div>
+    <h3>Параметры</h3>
+    <p>Аналогичны <code>console.log</code>.</p>
+</section>
+<hr>
+<section id="event-beforeVote">
+    <h2>liker:beforeVote</h2>
+    <p>
+        Генерируется на элементе голосования <strong>перед</strong> отправкой запроса на сервер.
+    </p>
+    <h3>Детали события (<code>event.detail</code>)</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+            <tbody>
+                <tr><td><code>instance</code></td><td><code>object</code></td><td>Экземпляр Liker.</td></tr>
+                <tr><td><code>value</code></td><td><code>any</code></td><td>Значение голоса.</td></tr>
+                <tr><td><code>mutate</code></td><td><code>boolean</code></td><td>Всегда <code>true</code>.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>Пример</h3>
+    <div class="pre-code"><pre class="hljs php"><code class="hljs language-php" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1">Qu.on(<span class="hljs-string">'liker:beforeVote'</span>, <span class="hljs-string">'[data-qu-liker]'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(e)</span> </span>{</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">    <span class="hljs-keyword">var</span> instance = e.detail.instance;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">    instance._rawParams.somevalue = <span class="hljs-string">'дополнительный параметр'</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">});</td></tr></tbody></table></code></pre></div>
+</section>
+
+<section id="event-afterVote">
+    <h2>liker:afterVote</h2>
+    <p>
+        Генерируется <strong>после</strong> получения ответа от сервера.
+    </p>
+    <h3>Детали события (<code>event.detail</code>)</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+            <tbody>
+                <tr><td><code>instance</code></td><td><code>object</code></td><td>Экземпляр Liker.</td></tr>
+                <tr><td><code>response</code></td><td><code>object</code></td><td>Ответ сервера.</td></tr>
+                <tr><td><code>mutate</code></td><td><code>boolean</code></td><td>Всегда <code>true</code>.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <h3>Пример</h3>
+    <div class="pre-code"><pre class="hljs javascript"><code class="hljs language-javascript" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-built_in">document</span>.addEventListener(<span class="hljs-string">'liker:afterVote'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">    <span class="hljs-keyword">if</span> (e.detail.response.success) {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Голос учтён!'</span>);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">    }</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">});</td></tr></tbody></table></code></pre></div>
+</section>
+<section id="event-beforeInit">
+    <h2>liker:beforeInit</h2>
+    <p>
+        Генерируется перед инициализацией плагина (на <code>document.body</code>).
+    </p>
+    <h3>Детали события (<code>event.detail</code>)</h3>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+            <tbody>
+                <tr><td><code>Qu</code></td><td><code>object</code></td><td>Экземпляр Qu.</td></tr>
+                <tr><td><code>Liker</code></td><td><code>object</code></td><td>Конструктор Liker.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<hr>
+
+<section id="templates">
+    <h2>HTML-шаблоны и настройка стилей</h2>
+    <p>
+        Плагин Liker предоставляет готовые UI-компоненты для каждого типа голосования. 
+        Достаточно вставить размеченный HTML-блок с нужными <code>data-*</code> атрибутами, 
+        и плагин автоматически оживит его.
+    </p>
+    <p>
+        Внешний вид полностью настраивается через <strong>CSS-переменные</strong> (см. таблицу ниже). 
+        Вы можете переопределить их глобально или для конкретного контейнера.
+    </p>
+
+    <hr>
+
+    <!-- ===== ТИП: LIKE ===== -->
+    <h3 id="template-like">Тип <code>like</code> – классический лайк</h3>
+    <p>
+        Простой лайк с кнопкой и счётчиком. При клике число увеличивается/уменьшается.
+    </p>
+    <p><strong>Основные атрибуты:</strong></p>
+    <ul>
+        <li><code>data-qu-liker-type="like"</code></li>
+        <li><code>data-qu-liker-btn="like"</code> – кнопка лайка</li>
+        <li><code>data-qu-liker-field="total"</code> – элемент для отображения количества лайков</li>
+    </ul>
+
+    <div class="pre-code"><pre class="hljs yaml"><code class="hljs language-yaml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-string">&lt;div</span> <span class="hljs-string">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-string">data-qu-liker-type="like"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-string">data-qu-liker-target-id="123"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-string">data-qu-liker-target-key="post"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-string">data-qu-liker-total="42"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">     <span class="hljs-string">data-qu-liker-theme="borders"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    <span class="hljs-string">&lt;button</span> <span class="hljs-string">type="button"</span> <span class="hljs-string">data-qu-liker-btn="like"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">        <span class="hljs-string">&lt;span</span> <span class="hljs-string">data-qu-liker-icon</span> <span class="hljs-string">class="liker-icon"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">            <span class="hljs-string">&lt;span</span> <span class="hljs-string">class="liker-icon</span> <span class="hljs-string">liker-icon--empty"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">                <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">                    &lt;path d="</span><span class="hljs-string">m8</span> <span class="hljs-number">2.748</span><span class="hljs-number">-.717</span><span class="hljs-string">-.737C5.6.281</span> <span class="hljs-number">2.514</span><span class="hljs-number">.878</span> <span class="hljs-number">1.4</span> <span class="hljs-number">3.</span><span class="hljs-string">053c-.523</span> <span class="hljs-number">1.023</span><span class="hljs-number">-.641</span> <span class="hljs-number">2.5</span><span class="hljs-number">.314</span> <span class="hljs-number">4.385</span><span class="hljs-number">.92</span> <span class="hljs-number">1.815</span> <span class="hljs-number">2.834</span> <span class="hljs-number">3.989</span> <span class="hljs-number">6.286</span> <span class="hljs-number">6.357</span> <span class="hljs-number">3.452</span><span class="hljs-number">-2.368</span> <span class="hljs-number">5.365</span><span class="hljs-number">-4.542</span> <span class="hljs-number">6.286</span><span class="hljs-number">-6.357</span><span class="hljs-number">.955</span><span class="hljs-number">-1.886</span><span class="hljs-number">.838</span><span class="hljs-number">-3.362</span><span class="hljs-number">.314</span><span class="hljs-number">-4.</span><span class="hljs-string">385C13.486.878</span> <span class="hljs-number">10.4</span><span class="hljs-number">.28</span> <span class="hljs-number">8.717</span> <span class="hljs-number">2.</span><span class="hljs-string">01zM8</span> <span class="hljs-string">15C-7.333</span> <span class="hljs-number">4.868</span> <span class="hljs-number">3.279</span><span class="hljs-number">-3.04</span> <span class="hljs-number">7.824</span> <span class="hljs-number">1.</span><span class="hljs-string">143q.09.083.176.171a3</span> <span class="hljs-number">3</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span> <span class="hljs-number">.176</span><span class="hljs-string">-.17C12.72-3.042</span> <span class="hljs-number">23.333</span> <span class="hljs-number">4.867</span> <span class="hljs-number">8</span> <span class="hljs-number">15</span><span class="hljs-string">"/&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">                &lt;/svg&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">            &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">            &lt;span class="</span><span class="hljs-string">liker-icon</span> <span class="hljs-string">liker-icon--filled"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16">                <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">                    &lt;path fill-rule="</span><span class="hljs-string">evenodd"</span> <span class="hljs-string">d="M8</span> <span class="hljs-number">1.</span><span class="hljs-string">314C12.438-3.248</span> <span class="hljs-number">23.534</span> <span class="hljs-number">4.735</span> <span class="hljs-number">8</span> <span class="hljs-number">15</span><span class="hljs-number">-7.534</span> <span class="hljs-number">4.736</span> <span class="hljs-number">3.562</span><span class="hljs-number">-3.248</span> <span class="hljs-number">8</span> <span class="hljs-number">1.314</span><span class="hljs-string">"/&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">                &lt;/svg&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">            &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">        &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">        &lt;span data-qu-liker-field="</span><span class="hljs-string">total"</span> <span class="hljs-string">class="qu-liker-total"&gt;42&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">    <span class="hljs-string">&lt;/button&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23"><span class="hljs-string">&lt;/div&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <hr>
+
+    <!-- ===== ТИП: STARS ===== -->
+    <h3 id="template-stars">Тип <code>stars</code> – звёздный рейтинг</h3>
+    <p>
+        Отображение рейтинга звёздами. Пользователь может выбрать количество звёзд (от 1 до <code>max</code>).
+        Поддерживает дробные значения (например, 4.5).
+    </p>
+    <p><strong>Основные атрибуты:</strong></p>
+    <ul>
+        <li><code>data-qu-liker-type="stars"</code></li>
+        <li><code>data-qu-liker-max="5"</code> – максимальное количество звёзд</li>
+        <li><code>data-qu-liker-current="4.5"</code> – текущий рейтинг</li>
+        <li><code>data-qu-liker-stars-container</code> – контейнер звёзд</li>
+        <li><code>data-qu-liker-star</code> – каждая звезда (с атрибутом <code>data-value</code>)</li>
+        <li><code>data-qu-liker-field="avg_rating"</code> – средняя оценка</li>
+        <li><code>data-qu-liker-field="total_votes"</code> – количество голосов</li>
+    </ul>
+
+    <h4>Базовый вариант</h4>
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"stars"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"456"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"product"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-attr">data-qu-liker-max</span>=<span class="hljs-string">"5"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">     <span class="hljs-attr">data-qu-liker-current</span>=<span class="hljs-string">"4.5"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">     <span class="hljs-attr">data-qu-liker-theme</span>=<span class="hljs-string">"borders"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-stars-container</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"qu-liker-stars"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">    <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"qu-liker-stars-summary"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"avg_rating"</span>&gt;</span>4.5<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">        (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_votes"</span>&gt;</span>127<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">    <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <h4>Расширенный вариант с распределением голосов</h4>
+    <p>
+        Дополнительно можно отобразить гистограмму распределения голосов по звёздам.
+        Для этого используются поля <code>stars_distribution.{N}</code> и <code>stars_distribution.{N}_percent</code>.
+    </p>
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"stars"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"456"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"product"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-attr">data-qu-liker-max</span>=<span class="hljs-string">"5"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">     <span class="hljs-attr">data-qu-liker-current</span>=<span class="hljs-string">"4.5"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">     <span class="hljs-attr">data-qu-liker-theme</span>=<span class="hljs-string">"borders"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-stars-container</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"qu-liker-stars"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"1"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"2"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"4"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-star</span> <span class="hljs-attr">data-value</span>=<span class="hljs-string">"5"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"qu-liker-stars-summary"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"avg_rating"</span>&gt;</span>4.5<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">        (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_votes"</span>&gt;</span>127<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-item"</span> <span class="hljs-attr">data-qu-liker-stats-item</span>=<span class="hljs-string">"1"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="24"><div class="hljs-ln-n" data-line-number="24"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="24">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-label"</span>&gt;</span>1:<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="25"><div class="hljs-ln-n" data-line-number="25"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="25">            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="26"><div class="hljs-ln-n" data-line-number="26"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="26">                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar-fill"</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.1"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width: 0%;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="27"><div class="hljs-ln-n" data-line-number="27"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="27">            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="28"><div class="hljs-ln-n" data-line-number="28"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="28">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-values"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="29"><div class="hljs-ln-n" data-line-number="29"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="29">                <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.1"</span>&gt;</span>0<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="30"><div class="hljs-ln-n" data-line-number="30"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="30">                (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.1_percent"</span>&gt;</span>0%<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="31"><div class="hljs-ln-n" data-line-number="31"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="31">            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="32"><div class="hljs-ln-n" data-line-number="32"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="32">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="33"><div class="hljs-ln-n" data-line-number="33"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="33">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-item"</span> <span class="hljs-attr">data-qu-liker-stats-item</span>=<span class="hljs-string">"2"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="34"><div class="hljs-ln-n" data-line-number="34"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="34">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-label"</span>&gt;</span>2:<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="35"><div class="hljs-ln-n" data-line-number="35"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="35">            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="36"><div class="hljs-ln-n" data-line-number="36"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="36">                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar-fill"</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.2"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width: 5%;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="37"><div class="hljs-ln-n" data-line-number="37"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="37">            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="38"><div class="hljs-ln-n" data-line-number="38"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="38">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats-values"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="39"><div class="hljs-ln-n" data-line-number="39"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="39">                <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.2"</span>&gt;</span>6<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="40"><div class="hljs-ln-n" data-line-number="40"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="40">                (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stars_distribution.2_percent"</span>&gt;</span>5%<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="41"><div class="hljs-ln-n" data-line-number="41"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="41">            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="42"><div class="hljs-ln-n" data-line-number="42"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="42">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="43"><div class="hljs-ln-n" data-line-number="43"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="43">        <span class="hljs-comment">&lt;!-- Аналогично для 3, 4, 5 --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="44"><div class="hljs-ln-n" data-line-number="44"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="44">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="45"><div class="hljs-ln-n" data-line-number="45"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="45"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <hr>
+
+    <!-- ===== ТИП: EMOJI ===== -->
+    <h3 id="template-emoji">Тип <code>emoji</code> – реакции эмодзи</h3>
+    <p>
+        Выбор одного эмодзи из выпадающей палитры. Поддерживает отображение статистики по каждому эмодзи.
+    </p>
+    <p><strong>Основные атрибуты:</strong></p>
+    <ul>
+        <li><code>data-qu-liker-type="emoji"</code></li>
+        <li><code>data-qu-liker-emoji-trigger</code> – кнопка, открывающая палитру</li>
+        <li><code>data-qu-liker-emoji-palette</code> – контейнер с вариантами</li>
+        <li><code>data-qu-liker-emoji-value</code> – каждый вариант (значение)</li>
+        <li><code>data-qu-liker-emoji-current</code> – отображение текущего выбранного эмодзи</li>
+        <li><code>data-qu-liker-emoji-placeholder</code> – скрытый элемент для начального значения</li>
+        <li><code>data-qu-liker-field="stats.{value}"</code> – количество голосов за конкретный эмодзи</li>
+    </ul>
+
+    <h4>Базовый вариант</h4>
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"emoji"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"789"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"comment"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-attr">data-qu-liker-theme</span>=<span class="hljs-string">"borders"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji-placeholder</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-trigger</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-emoji-current</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-icon"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">                <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_votes"</span>&gt;</span>42<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji-palette</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"1"</span>&gt;</span>😍<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.1"</span>&gt;</span>10<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"2"</span> <span class="hljs-attr">data-qu-liker-emoji-default</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.2"</span>&gt;</span>15<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"3"</span>&gt;</span>😐<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.3"</span>&gt;</span>8<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="24"><div class="hljs-ln-n" data-line-number="24"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="24">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"4"</span>&gt;</span>😟<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="25"><div class="hljs-ln-n" data-line-number="25"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="25">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.4"</span>&gt;</span>5<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="26"><div class="hljs-ln-n" data-line-number="26"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="26">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"5"</span>&gt;</span>😠<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="27"><div class="hljs-ln-n" data-line-number="27"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="27">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.5"</span>&gt;</span>4<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="28"><div class="hljs-ln-n" data-line-number="28"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="28">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="29"><div class="hljs-ln-n" data-line-number="29"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="29">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="30"><div class="hljs-ln-n" data-line-number="30"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="30"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <h4>Расширенный вариант с гистограммой</h4>
+    <div class="pre-code"><pre class="hljs xml"><code class="hljs language-xml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-attr">data-qu-liker-type</span>=<span class="hljs-string">"emoji"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-attr">data-qu-liker-target-id</span>=<span class="hljs-string">"789"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-attr">data-qu-liker-target-key</span>=<span class="hljs-string">"comment"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-attr">data-qu-liker-theme</span>=<span class="hljs-string">"borders"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji-placeholder</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-trigger</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-emoji-current</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-icon"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">                <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"total_votes"</span>&gt;</span>42<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-emoji-palette</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"1"</span>&gt;</span>😍<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.1"</span>&gt;</span>10<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"2"</span> <span class="hljs-attr">data-qu-liker-emoji-default</span>&gt;</span>😊<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.2"</span>&gt;</span>15<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"3"</span>&gt;</span>😐<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.3"</span>&gt;</span>8<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="24"><div class="hljs-ln-n" data-line-number="24"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="24">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"4"</span>&gt;</span>😟<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="25"><div class="hljs-ln-n" data-line-number="25"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="25">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.4"</span>&gt;</span>5<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="26"><div class="hljs-ln-n" data-line-number="26"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="26">            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"5"</span>&gt;</span>😠<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="27"><div class="hljs-ln-n" data-line-number="27"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="27">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.5"</span>&gt;</span>4<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="28"><div class="hljs-ln-n" data-line-number="28"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="28">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="29"><div class="hljs-ln-n" data-line-number="29"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="29">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="30"><div class="hljs-ln-n" data-line-number="30"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="30"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="31"><div class="hljs-ln-n" data-line-number="31"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="31">    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-stats"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="32"><div class="hljs-ln-n" data-line-number="32"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="32">        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">data-qu-liker-stats-item</span>=<span class="hljs-string">"1"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="33"><div class="hljs-ln-n" data-line-number="33"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="33">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-emoji-value</span>=<span class="hljs-string">"1"</span>&gt;</span>😍<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="34"><div class="hljs-ln-n" data-line-number="34"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="34">            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar"</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="35"><div class="hljs-ln-n" data-line-number="35"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="35">                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"liker-bar-fill"</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.1_bar"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width: 24%;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="36"><div class="hljs-ln-n" data-line-number="36"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="36">            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="37"><div class="hljs-ln-n" data-line-number="37"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="37">            <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="38"><div class="hljs-ln-n" data-line-number="38"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="38">                <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.1"</span>&gt;</span>10<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="39"><div class="hljs-ln-n" data-line-number="39"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="39">                (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">data-qu-liker-field</span>=<span class="hljs-string">"stats.1_percent"</span>&gt;</span>24%<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>)</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="40"><div class="hljs-ln-n" data-line-number="40"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="40">            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="41"><div class="hljs-ln-n" data-line-number="41"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="41">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="42"><div class="hljs-ln-n" data-line-number="42"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="42">        <span class="hljs-comment">&lt;!-- Аналогично для остальных эмодзи --&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="43"><div class="hljs-ln-n" data-line-number="43"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="43">    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="44"><div class="hljs-ln-n" data-line-number="44"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="44"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <hr>
+
+    <!-- ===== ТИП: THUMBS ===== -->
+    <h3 id="template-thumbs">Тип <code>thumbs</code> – «пальцы вверх/вниз»</h3>
+    <p>
+        Две кнопки: 👍 и 👎. Отображает разницу голосов (score) и количество лайков/дизлайков.
+    </p>
+    <p><strong>Основные атрибуты:</strong></p>
+    <ul>
+        <li><code>data-qu-liker-type="thumbs"</code></li>
+        <li><code>data-qu-liker-btn="thumbs-up"</code> и <code>data-qu-liker-btn="thumbs-down"</code></li>
+        <li><code>data-value="1"</code> и <code>data-value="-1"</code> соответственно</li>
+        <li><code>data-qu-liker-field="total_likes"</code> – количество лайков</li>
+        <li><code>data-qu-liker-field="total_dislikes"</code> – количество дизлайков</li>
+        <li><code>data-qu-liker-field="avg_rating"</code> – разница (score)</li>
+        <li><code>data-qu-liker-thumbs-class</code> – добавляет класс на основе значения (например, <code>score-positive</code>, <code>score-negative</code>, <code>score-zero</code>)</li>
+    </ul>
+
+    <div class="pre-code"><pre class="hljs yaml"><code class="hljs language-yaml" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-string">&lt;div</span> <span class="hljs-string">data-qu-liker</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">     <span class="hljs-string">data-qu-liker-type="thumbs"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">     <span class="hljs-string">data-qu-liker-target-id="101"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">     <span class="hljs-string">data-qu-liker-target-key="video"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">     <span class="hljs-string">data-qu-liker-theme="borders"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    <span class="hljs-string">&lt;div</span> <span class="hljs-string">style="display:</span> <span class="hljs-string">flex;</span> <span class="hljs-attr">gap:</span> <span class="hljs-string">1rem;</span> <span class="hljs-attr">align-items:</span> <span class="hljs-string">center;"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">        <span class="hljs-string">&lt;button</span> <span class="hljs-string">type="button"</span> <span class="hljs-string">data-qu-liker-btn="thumbs-up"</span> <span class="hljs-string">data-value="1"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">            <span class="hljs-string">&lt;span</span> <span class="hljs-string">data-qu-liker-icon&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">                <span class="hljs-string">&lt;span</span> <span class="hljs-string">class="liker-icon</span> <span class="hljs-string">liker-icon--empty"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">                    <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">                        &lt;path d="</span><span class="hljs-string">M8.864.046C7.908-.193</span> <span class="hljs-number">7.02</span><span class="hljs-number">.53</span> <span class="hljs-number">6.956</span> <span class="hljs-number">1.</span><span class="hljs-string">466c-.072</span> <span class="hljs-number">1.051</span><span class="hljs-number">-.23</span> <span class="hljs-number">2.016</span><span class="hljs-number">-.428</span> <span class="hljs-number">2.59</span><span class="hljs-number">-.125</span><span class="hljs-number">.36</span><span class="hljs-number">-.479</span> <span class="hljs-number">1.013</span><span class="hljs-number">-1.04</span> <span class="hljs-number">1.639</span><span class="hljs-number">-.557</span><span class="hljs-number">.623</span><span class="hljs-number">-1.282</span> <span class="hljs-number">1.178</span><span class="hljs-number">-2.131</span> <span class="hljs-number">1.</span><span class="hljs-string">41C2.685</span> <span class="hljs-number">7.288</span> <span class="hljs-number">2</span> <span class="hljs-number">7.87</span> <span class="hljs-number">2</span> <span class="hljs-number">8.</span><span class="hljs-string">72v4.001c0</span> <span class="hljs-number">.845</span><span class="hljs-number">.682</span> <span class="hljs-number">1.464</span> <span class="hljs-number">1.448</span> <span class="hljs-number">1.545</span> <span class="hljs-number">1.07</span><span class="hljs-number">.114</span> <span class="hljs-number">1.564</span><span class="hljs-number">.415</span> <span class="hljs-number">2.068</span><span class="hljs-string">.723l.048.03c.272.165.578.348.97.484.397.136.861.217</span> <span class="hljs-number">1.466</span><span class="hljs-string">.217h3.5c.937</span> <span class="hljs-number">0</span> <span class="hljs-number">1.599</span><span class="hljs-number">-.477</span> <span class="hljs-number">1.934</span><span class="hljs-number">-1.</span><span class="hljs-string">064a1.86</span> <span class="hljs-number">1.86</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">.254</span><span class="hljs-string">-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857</span> <span class="hljs-number">0</span><span class="hljs-number">-.288</span><span class="hljs-number">-.036</span><span class="hljs-number">-.585</span><span class="hljs-number">-.113</span><span class="hljs-string">-.856a2</span> <span class="hljs-number">2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.138</span><span class="hljs-number">-.362</span> <span class="hljs-number">1.9</span> <span class="hljs-number">1.9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">.234</span><span class="hljs-number">-1.</span><span class="hljs-string">734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a10</span> <span class="hljs-number">10</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.443</span><span class="hljs-number">.05</span> <span class="hljs-number">9.4</span> <span class="hljs-number">9.4</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.062</span><span class="hljs-number">-4.</span><span class="hljs-string">509A1.38</span> <span class="hljs-number">1.38</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">9.125</span><span class="hljs-string">.111zM11.5</span> <span class="hljs-number">14.</span><span class="hljs-string">721H8c-.51</span> <span class="hljs-number">0</span><span class="hljs-number">-.863</span><span class="hljs-number">-.069</span><span class="hljs-number">-1.14</span><span class="hljs-number">-.164</span><span class="hljs-number">-.281</span><span class="hljs-number">-.097</span><span class="hljs-number">-.506</span><span class="hljs-number">-.228</span><span class="hljs-number">-.776</span><span class="hljs-string">-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65</span> <span class="hljs-number">1.095</span><span class="hljs-number">-.3</span> <span class="hljs-number">1.977</span><span class="hljs-number">-.996</span> <span class="hljs-number">2.614</span><span class="hljs-number">-1.708</span><span class="hljs-number">.635</span><span class="hljs-number">-.71</span> <span class="hljs-number">1.064</span><span class="hljs-number">-1.475</span> <span class="hljs-number">1.238</span><span class="hljs-number">-1.978</span><span class="hljs-number">.243</span><span class="hljs-number">-.7</span><span class="hljs-number">.407</span><span class="hljs-number">-1.768</span><span class="hljs-number">.482</span><span class="hljs-number">-2.85</span><span class="hljs-number">.025</span><span class="hljs-number">-.362</span><span class="hljs-number">.36</span><span class="hljs-number">-.594</span><span class="hljs-number">.667</span><span class="hljs-string">-.518l.262.066c.16.04.258.143.288.255a8.34</span> <span class="hljs-number">8.34</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.145</span> <span class="hljs-number">4.725</span><span class="hljs-number">.5</span><span class="hljs-number">.5</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">.595</span><span class="hljs-string">.644l.003-.001.014-.003.058-.014a9</span> <span class="hljs-number">9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span> <span class="hljs-number">1.036</span><span class="hljs-string">-.157c.663-.06</span> <span class="hljs-number">1.457</span><span class="hljs-number">-.054</span> <span class="hljs-number">2.11</span><span class="hljs-number">.164</span><span class="hljs-number">.175</span><span class="hljs-number">.058</span><span class="hljs-number">.45</span><span class="hljs-number">.3</span><span class="hljs-number">.57</span><span class="hljs-number">.65</span><span class="hljs-number">.107</span><span class="hljs-number">.308</span><span class="hljs-number">.087</span><span class="hljs-number">.67</span><span class="hljs-number">-.266</span> <span class="hljs-number">1.</span><span class="hljs-string">022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581</span> <span class="hljs-number">0</span> <span class="hljs-number">.212</span><span class="hljs-number">-.027</span><span class="hljs-number">.414</span><span class="hljs-number">-.075</span><span class="hljs-number">.582</span><span class="hljs-number">-.05</span><span class="hljs-number">.174</span><span class="hljs-number">-.111</span><span class="hljs-number">.272</span><span class="hljs-number">-.154</span><span class="hljs-string">.315l-.353.353.353.354c.047.047.109.177.005.488a2.2</span> <span class="hljs-number">2.2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.505</span><span class="hljs-string">.805l-.353.353.353.354c.006.005.041.05.041.17a.9.9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.121</span><span class="hljs-string">.416c-.165.288-.503.56-1.066.56z"/&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">                    <span class="hljs-string">&lt;/svg&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">                <span class="hljs-string">&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15">                <span class="hljs-string">&lt;span</span> <span class="hljs-string">class="liker-icon</span> <span class="hljs-string">liker-icon--filled"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16">                    <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">                        &lt;path d="</span><span class="hljs-string">M6.956</span> <span class="hljs-number">1.</span><span class="hljs-string">745C7.021.81</span> <span class="hljs-number">7.908</span><span class="hljs-number">.087</span> <span class="hljs-number">8.864</span><span class="hljs-string">.325l.261.066c.463.116.874.456</span> <span class="hljs-number">1.012</span><span class="hljs-number">.965</span><span class="hljs-number">.22</span><span class="hljs-number">.816</span><span class="hljs-number">.533</span> <span class="hljs-number">2.511</span><span class="hljs-number">.062</span> <span class="hljs-number">4.</span><span class="hljs-string">51a10</span> <span class="hljs-number">10</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span> <span class="hljs-number">.443</span><span class="hljs-string">-.051c.713-.065</span> <span class="hljs-number">1.669</span><span class="hljs-number">-.072</span> <span class="hljs-number">2.516</span><span class="hljs-number">.21</span><span class="hljs-number">.518</span><span class="hljs-number">.173</span><span class="hljs-number">.994</span><span class="hljs-number">.681</span> <span class="hljs-number">1.2</span> <span class="hljs-number">1.273</span><span class="hljs-number">.184</span><span class="hljs-number">.532</span><span class="hljs-number">.16</span> <span class="hljs-number">1.162</span><span class="hljs-number">-.234</span> <span class="hljs-number">1.</span><span class="hljs-string">733q.086.18.138.363c.077.27.113.567.113.856s-.036.586-.113.856c-.039.135-.09.273-.16.404.169.387.107.819-.003</span> <span class="hljs-number">1.</span><span class="hljs-string">148a3.2</span> <span class="hljs-number">3.2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.488</span><span class="hljs-string">.901c.054.152.076.312.076.465</span> <span class="hljs-number">0</span> <span class="hljs-number">.305</span><span class="hljs-number">-.089</span><span class="hljs-number">.625</span><span class="hljs-number">-.253</span><span class="hljs-string">.912C13.1</span> <span class="hljs-number">15.522</span> <span class="hljs-number">12.437</span> <span class="hljs-number">16</span> <span class="hljs-number">11.5</span> <span class="hljs-string">16H8c-.605</span> <span class="hljs-number">0</span><span class="hljs-number">-1.07</span><span class="hljs-number">-.081</span><span class="hljs-number">-1.466</span><span class="hljs-string">-.218a4.8</span> <span class="hljs-number">4.8</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.97</span><span class="hljs-string">-.484l-.048-.03c-.504-.307-.999-.609-2.068-.722C2.682</span> <span class="hljs-number">14.464</span> <span class="hljs-number">2</span> <span class="hljs-number">13.846</span> <span class="hljs-number">2</span> <span class="hljs-string">13V9c0-.85.685-1.432</span> <span class="hljs-number">1.357</span><span class="hljs-number">-1.615</span><span class="hljs-number">.849</span><span class="hljs-number">-.232</span> <span class="hljs-number">1.574</span><span class="hljs-number">-.787</span> <span class="hljs-number">2.132</span><span class="hljs-number">-1.41</span><span class="hljs-number">.56</span><span class="hljs-number">-.627</span><span class="hljs-number">.914</span><span class="hljs-number">-1.28</span> <span class="hljs-number">1.039</span><span class="hljs-number">-1.639</span><span class="hljs-number">.199</span><span class="hljs-number">-.575</span><span class="hljs-number">.356</span><span class="hljs-number">-1.539</span><span class="hljs-number">.428</span><span class="hljs-number">-2.</span><span class="hljs-string">59z"/&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">                    <span class="hljs-string">&lt;/svg&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">                <span class="hljs-string">&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">            <span class="hljs-string">&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">            <span class="hljs-string">&lt;span</span> <span class="hljs-string">data-qu-liker-field="total_likes"&gt;150&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">        <span class="hljs-string">&lt;/button&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="23"><div class="hljs-ln-n" data-line-number="23"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="23"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="24"><div class="hljs-ln-n" data-line-number="24"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="24">        <span class="hljs-string">&lt;div&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="25"><div class="hljs-ln-n" data-line-number="25"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="25">            <span class="hljs-string">&lt;span</span> <span class="hljs-string">data-qu-liker-field="avg_rating"</span> <span class="hljs-string">data-qu-liker-thumbs-class="score-positive"&gt;+120&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="26"><div class="hljs-ln-n" data-line-number="26"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="26">        <span class="hljs-string">&lt;/div&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="27"><div class="hljs-ln-n" data-line-number="27"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="27"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="28"><div class="hljs-ln-n" data-line-number="28"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="28">        <span class="hljs-string">&lt;button</span> <span class="hljs-string">type="button"</span> <span class="hljs-string">data-qu-liker-btn="thumbs-down"</span> <span class="hljs-string">data-value="-1"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="29"><div class="hljs-ln-n" data-line-number="29"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="29">            <span class="hljs-string">&lt;span</span> <span class="hljs-string">data-qu-liker-icon&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="30"><div class="hljs-ln-n" data-line-number="30"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="30">                <span class="hljs-string">&lt;span</span> <span class="hljs-string">class="liker-icon</span> <span class="hljs-string">liker-icon--empty"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="31"><div class="hljs-ln-n" data-line-number="31"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="31">                    <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="32"><div class="hljs-ln-n" data-line-number="32"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="32">                        &lt;path d="</span><span class="hljs-string">M8.864</span> <span class="hljs-number">15.</span><span class="hljs-string">674c-.956.24-1.843-.484-1.908-1.42-.072-1.05-.23-2.015-.428-2.59-.125-.36-.479-1.012-1.04-1.638-.557-.624-1.282-1.179-2.131-1.41C2.685</span> <span class="hljs-number">8.432</span> <span class="hljs-number">2</span> <span class="hljs-number">7.85</span> <span class="hljs-number">2</span> <span class="hljs-string">7V3c0-.845.682-1.464</span> <span class="hljs-number">1.448</span><span class="hljs-number">-1.546</span> <span class="hljs-number">1.07</span><span class="hljs-number">-.113</span> <span class="hljs-number">1.564</span><span class="hljs-number">-.415</span> <span class="hljs-number">2.068</span><span class="hljs-string">-.723l.048-.029c.272-.166.578-.349.97-.484C6.931.08</span> <span class="hljs-number">7.395</span> <span class="hljs-number">0</span> <span class="hljs-number">8</span> <span class="hljs-string">0h3.5c.937</span> <span class="hljs-number">0</span> <span class="hljs-number">1.599</span><span class="hljs-number">.478</span> <span class="hljs-number">1.934</span> <span class="hljs-number">1.064</span><span class="hljs-number">.164</span><span class="hljs-number">.287</span><span class="hljs-number">.254</span><span class="hljs-number">.607</span><span class="hljs-number">.254</span><span class="hljs-number">.913</span> <span class="hljs-number">0</span> <span class="hljs-number">.152</span><span class="hljs-number">-.023</span><span class="hljs-number">.312</span><span class="hljs-number">-.077</span><span class="hljs-number">.464</span><span class="hljs-number">.201</span><span class="hljs-number">.262</span><span class="hljs-number">.38</span><span class="hljs-number">.577</span><span class="hljs-number">.488</span><span class="hljs-number">.9</span><span class="hljs-number">.11</span><span class="hljs-number">.33</span><span class="hljs-number">.172</span><span class="hljs-number">.762</span><span class="hljs-number">.004</span> <span class="hljs-number">1.15</span><span class="hljs-number">.069</span><span class="hljs-number">.13</span><span class="hljs-number">.12</span><span class="hljs-number">.268</span><span class="hljs-number">.159</span><span class="hljs-number">.403</span><span class="hljs-number">.077</span><span class="hljs-number">.27</span><span class="hljs-number">.113</span><span class="hljs-number">.567</span><span class="hljs-number">.113</span><span class="hljs-string">.856s-.036.586-.113.856c-.035.12-.08.244-.138.363.394.571.418</span> <span class="hljs-number">1.2</span><span class="hljs-number">.234</span> <span class="hljs-number">1.733</span><span class="hljs-number">-.206</span><span class="hljs-number">.592</span><span class="hljs-number">-.682</span> <span class="hljs-number">1.1</span><span class="hljs-number">-1.2</span> <span class="hljs-number">1.272</span><span class="hljs-number">-.847</span><span class="hljs-number">.283</span><span class="hljs-number">-1.803</span><span class="hljs-number">.276</span><span class="hljs-number">-2.516</span><span class="hljs-string">.211a10</span> <span class="hljs-number">10</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.443</span><span class="hljs-number">-.05</span> <span class="hljs-number">9.36</span> <span class="hljs-number">9.36</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><span class="hljs-number">-.062</span> <span class="hljs-number">4.</span><span class="hljs-string">51c-.138.508-.55.848-1.012.964zM11.5</span> <span class="hljs-string">1H8c-.51</span> <span class="hljs-number">0</span><span class="hljs-number">-.863</span><span class="hljs-number">.068</span><span class="hljs-number">-1.14</span><span class="hljs-number">.163</span><span class="hljs-number">-.281</span><span class="hljs-number">.097</span><span class="hljs-number">-.506</span><span class="hljs-number">.229</span><span class="hljs-number">-.776</span><span class="hljs-string">.393l-.04.025c-.555.338-1.198.73-2.49.868-.333.035-.554.29-.554.55V7c0</span> <span class="hljs-number">.255</span><span class="hljs-number">.226</span><span class="hljs-number">.543</span><span class="hljs-number">.62</span><span class="hljs-number">.65</span> <span class="hljs-number">1.095</span><span class="hljs-number">.3</span> <span class="hljs-number">1.977</span><span class="hljs-number">.997</span> <span class="hljs-number">2.614</span> <span class="hljs-number">1.709</span><span class="hljs-number">.635</span><span class="hljs-number">.71</span> <span class="hljs-number">1.064</span> <span class="hljs-number">1.475</span> <span class="hljs-number">1.238</span> <span class="hljs-number">1.977</span><span class="hljs-number">.243</span><span class="hljs-number">.7</span><span class="hljs-number">.407</span> <span class="hljs-number">1.768</span><span class="hljs-number">.482</span> <span class="hljs-number">2.85</span><span class="hljs-number">.025</span><span class="hljs-number">.362</span><span class="hljs-number">.36</span><span class="hljs-number">.595</span><span class="hljs-number">.667</span><span class="hljs-string">.518l.262-.065c.16-.04.258-.144.288-.255a8.34</span> <span class="hljs-number">8.34</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.145</span><span class="hljs-number">-4.726</span><span class="hljs-number">.5</span><span class="hljs-number">.5</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span> <span class="hljs-number">.595</span><span class="hljs-string">-.643h.003l.014.004.058.013a9</span> <span class="hljs-number">9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1.036</span><span class="hljs-string">.157c.663.06</span> <span class="hljs-number">1.457</span><span class="hljs-number">.054</span> <span class="hljs-number">2.11</span><span class="hljs-number">-.163</span><span class="hljs-number">.175</span><span class="hljs-number">-.059</span><span class="hljs-number">.45</span><span class="hljs-number">-.301</span><span class="hljs-number">.57</span><span class="hljs-number">-.651</span><span class="hljs-number">.107</span><span class="hljs-number">-.308</span><span class="hljs-number">.087</span><span class="hljs-number">-.67</span><span class="hljs-number">-.266</span><span class="hljs-number">-1.</span><span class="hljs-string">021L12.793</span> <span class="hljs-string">7l.353-.354c.043-.042.105-.14.154-.315.048-.167.075-.37.075-.581s-.027-.414-.075-.581c-.05-.174-.111-.273-.154-.315l-.353-.354.353-.354c.047-.047.109-.176.005-.488a2.2</span> <span class="hljs-number">2.2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.505</span><span class="hljs-string">-.804l-.353-.354.353-.354c.006-.005.041-.05.041-.17a.9.9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.121</span><span class="hljs-string">-.415C12.4</span> <span class="hljs-number">1.272</span> <span class="hljs-number">12.063</span> <span class="hljs-number">1</span> <span class="hljs-number">11.5</span> <span class="hljs-number">1</span><span class="hljs-string">"/&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="33"><div class="hljs-ln-n" data-line-number="33"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="33">                    &lt;/svg&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="34"><div class="hljs-ln-n" data-line-number="34"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="34">                &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="35"><div class="hljs-ln-n" data-line-number="35"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="35">                &lt;span class="</span><span class="hljs-string">liker-icon</span> <span class="hljs-string">liker-icon--filled"&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="36"><div class="hljs-ln-n" data-line-number="36"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="36">                    <span class="hljs-string">&lt;svg</span> <span class="hljs-string">xmlns="http://www.w3.org/2000/svg"</span> <span class="hljs-string">width="16"</span> <span class="hljs-string">height="16"</span> <span class="hljs-string">fill="currentColor"</span> <span class="hljs-string">viewBox="0</span> <span class="hljs-number">0</span> <span class="hljs-number">16</span> <span class="hljs-number">16</span><span class="hljs-string">"&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="37"><div class="hljs-ln-n" data-line-number="37"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="37">                        &lt;path d="</span><span class="hljs-string">M6.956</span> <span class="hljs-number">14.</span><span class="hljs-string">534c.065.936.952</span> <span class="hljs-number">1.659</span> <span class="hljs-number">1.908</span> <span class="hljs-number">1.</span><span class="hljs-string">42l.261-.065a1.38</span> <span class="hljs-number">1.38</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">1.012</span><span class="hljs-string">-.965c.22-.816.533-2.512.062-4.51q.205.03.443.051c.713.065</span> <span class="hljs-number">1.669</span><span class="hljs-number">.071</span> <span class="hljs-number">2.516</span><span class="hljs-number">-.211</span><span class="hljs-number">.518</span><span class="hljs-number">-.173</span><span class="hljs-number">.994</span><span class="hljs-number">-.68</span> <span class="hljs-number">1.2</span><span class="hljs-number">-1.</span><span class="hljs-string">272a1.9</span> <span class="hljs-number">1.9</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.234</span><span class="hljs-number">-1.</span><span class="hljs-string">734c.058-.118.103-.242.138-.362.077-.27.113-.568.113-.856</span> <span class="hljs-number">0</span><span class="hljs-number">-.29</span><span class="hljs-number">-.036</span><span class="hljs-number">-.586</span><span class="hljs-number">-.113</span><span class="hljs-string">-.857a2</span> <span class="hljs-number">2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.16</span><span class="hljs-string">-.403c.169-.387.107-.82-.003-1.149a3.2</span> <span class="hljs-number">3.2</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.488</span><span class="hljs-string">-.9c.054-.153.076-.313.076-.465a1.86</span> <span class="hljs-number">1.86</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.253</span><span class="hljs-string">-.912C13.1.757</span> <span class="hljs-number">12.437</span><span class="hljs-number">.28</span> <span class="hljs-number">11.5</span><span class="hljs-string">.28H8c-.605</span> <span class="hljs-number">0</span><span class="hljs-number">-1.07</span><span class="hljs-number">.08</span><span class="hljs-number">-1.466</span><span class="hljs-string">.217a4.8</span> <span class="hljs-number">4.8</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><span class="hljs-number">-.97</span><span class="hljs-string">.485l-.048.029c-.504.308-.999.61-2.068.723C2.682</span> <span class="hljs-number">1.815</span> <span class="hljs-number">2</span> <span class="hljs-number">2.434</span> <span class="hljs-number">2</span> <span class="hljs-number">3.</span><span class="hljs-string">279v4c0</span> <span class="hljs-number">.851</span><span class="hljs-number">.685</span> <span class="hljs-number">1.433</span> <span class="hljs-number">1.357</span> <span class="hljs-number">1.616</span><span class="hljs-number">.849</span><span class="hljs-number">.232</span> <span class="hljs-number">1.574</span><span class="hljs-number">.787</span> <span class="hljs-number">2.132</span> <span class="hljs-number">1.41</span><span class="hljs-number">.56</span><span class="hljs-number">.626</span><span class="hljs-number">.914</span> <span class="hljs-number">1.28</span> <span class="hljs-number">1.039</span> <span class="hljs-number">1.638</span><span class="hljs-number">.199</span><span class="hljs-number">.575</span><span class="hljs-number">.356</span> <span class="hljs-number">1.54</span><span class="hljs-number">.428</span> <span class="hljs-number">2.591</span><span class="hljs-string">"/&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="38"><div class="hljs-ln-n" data-line-number="38"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="38">                    &lt;/svg&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="39"><div class="hljs-ln-n" data-line-number="39"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="39">                &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="40"><div class="hljs-ln-n" data-line-number="40"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="40">            &lt;/span&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="41"><div class="hljs-ln-n" data-line-number="41"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="41">            &lt;span data-qu-liker-field="</span><span class="hljs-string">total_dislikes"&gt;30&lt;/span&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="42"><div class="hljs-ln-n" data-line-number="42"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="42">        <span class="hljs-string">&lt;/button&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="43"><div class="hljs-ln-n" data-line-number="43"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="43">    <span class="hljs-string">&lt;/div&gt;</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="44"><div class="hljs-ln-n" data-line-number="44"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="44"><span class="hljs-string">&lt;/div&gt;</span></td></tr></tbody></table></code></pre></div>
+
+    <hr>
+
+    <!-- ===== ТАБЛИЦА CSS-ПЕРЕМЕННЫХ ===== -->
+    <h3>CSS-переменные для кастомизации</h3>
+    <p>
+        Все стили Liker построены на CSS-переменных, что позволяет легко адаптировать внешний вид под любой дизайн. 
+        Вы можете переопределить любую переменную глобально (например, в <code>:root</code>) или локально на контейнере <code>[data-qu-liker]</code>.
+    </p>
+    <p>
+        Для удобства встроены готовые темы: <code>default</code>, <code>borders</code>, <code>borders-dark</code>, <code>dark</code>. 
+        Их можно применить через атрибут <code>data-qu-liker-theme="borders"</code>.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="table-light text-nowrap"><th>Переменная</th><th>Описание</th><th>Значение по умолчанию</th></tr>
+            </thead>
+            <tbody>
+                <!-- Основные цвета -->
+                <tr><td><code>--liker-text</code></td><td>Цвет текста</td><td><code>#333</code></td></tr>
+                <tr><td><code>--liker-active-text</code></td><td>Цвет текста активного состояния (проголосовано)</td><td><code>inherit</code></td></tr>
+                <tr><td><code>--liker-bg</code></td><td>Фон кнопок</td><td><code>transparent</code></td></tr>
+                <tr><td><code>--liker-bg-alt</code></td><td>Фон при наведении</td><td><code>var(--liker-bg)</code></td></tr>
+                <tr><td><code>--liker-bg-voted</code></td><td>Фон активной кнопки</td><td><code>var(--liker-bg)</code></td></tr>
+                <tr><td><code>--liker-border</code></td><td>Цвет рамки</td><td><code>transparent</code></td></tr>
+                <tr><td><code>--liker-border-active</code></td><td>Цвет рамки при наведении/активности</td><td><code>var(--liker-border)</code></td></tr>
+                <tr><td><code>--liker-radius</code></td><td>Скругление углов</td><td><code>0</code></td></tr>
+
+                <!-- Тени и переходы -->
+                <tr><td><code>--liker-shadow</code></td><td>Тень кнопки</td><td><code>none</code></td></tr>
+                <tr><td><code>--liker-shadow-hover</code></td><td>Тень при наведении</td><td><code>none</code></td></tr>
+                <tr><td><code>--liker-shadow-voted</code></td><td>Тень активной кнопки</td><td><code>none</code></td></tr>
+                <tr><td><code>--liker-transition</code></td><td>Параметры анимации переходов</td><td><code>none</code></td></tr>
+
+                <!-- Отступы и размеры кнопок -->
+                <tr><td><code>--liker-btn-padding</code></td><td>Внутренние отступы кнопки</td><td><code>0</code></td></tr>
+                <tr><td><code>--liker-btn-aspect</code></td><td>Соотношение сторон кнопки</td><td><code>auto</code></td></tr>
+                <tr><td><code>--liker-btn-gap</code></td><td>Расстояние между элементами</td><td><code>0.5rem</code></td></tr>
+                <tr><td><code>--liker-container-width</code></td><td>Ширина контейнера</td><td><code>auto</code></td></tr>
+                <tr><td><code>--liker-font-size</code></td><td>Размер шрифта</td><td><code>1rem</code></td></tr>
+
+                <!-- Иконки -->
+                <tr><td><code>--liker-icon-width</code></td><td>Ширина иконки</td><td><code>auto</code></td></tr>
+                <tr><td><code>--liker-icon-height</code></td><td>Высота иконки</td><td><code>auto</code></td></tr>
+                <tr><td><code>--liker-icon-size</code></td><td>Размер иконки (шрифт)</td><td><code>20px</code></td></tr>
+
+                <!-- Звёзды -->
+                <tr><td><code>--liker-star-size</code></td><td>Размер звезды</td><td><code>1.2rem</code></td></tr>
+                <tr><td><code>--liker-star-empty-bg</code></td><td>SVG-фон пустой звезды</td><td><code>url("data:...")</code></td></tr>
+                <tr><td><code>--liker-star-filled-bg</code></td><td>SVG-фон заполненной звезды</td><td><code>url("data:...")</code></td></tr>
+                <tr><td><code>--liker-star-active-bg</code></td><td>SVG-фон активной (выбранной) звезды</td><td><code>url("data:...")</code></td></tr>
+                <tr><td><code>--liker-star-active-color</code></td><td>Цвет обводки активной звезды</td><td><code>#ffa500</code></td></tr>
+
+                <!-- Эмодзи -->
+                <tr><td><code>--liker-emoji-size</code></td><td>Размер эмодзи</td><td><code>1.2rem</code></td></tr>
+                <tr><td><code>--liker-palette-bg</code></td><td>Фон палитры</td><td><code>#ffffff</code></td></tr>
+                <tr><td><code>--liker-palette-border</code></td><td>Рамка палитры</td><td><code>#cccccc</code></td></tr>
+                <tr><td><code>--liker-palette-radius</code></td><td>Скругление палитры</td><td><code>4px</code></td></tr>
+                <tr><td><code>--liker-palette-shadow</code></td><td>Тень палитры</td><td><code>0 4px 12px rgba(0,0,0,0.15)</code></td></tr>
+                <tr><td><code>--liker-palette-padding</code></td><td>Отступы внутри палитры</td><td><code>0.5rem</code></td></tr>
+                <tr><td><code>--liker-palette-gap</code></td><td>Расстояние между элементами палитры</td><td><code>0.3rem</code></td></tr>
+                <tr><td><code>--liker-palette-top</code></td><td>Позиция палитры сверху</td><td><code>100%</code></td></tr>
+                <tr><td><code>--liker-palette-bottom</code></td><td>Позиция палитры снизу</td><td><code>auto</code></td></tr>
+
+                <!-- Статистика (бары) -->
+                <tr><td><code>--liker-bar-width</code></td><td>Ширина гистограммы</td><td><code>150px</code></td></tr>
+                <tr><td><code>--liker-bar-height</code></td><td>Высота гистограммы</td><td><code>10px</code></td></tr>
+                <tr><td><code>--liker-bar-bg</code></td><td>Фон гистограммы (пустая часть)</td><td><code>rgba(0,0,0,0.1)</code></td></tr>
+                <tr><td><code>--liker-bar-fill</code></td><td>Цвет заполнения гистограммы</td><td><code>#fbbf24</code></td></tr>
+                <tr><td><code>--liker-bar-radius</code></td><td>Скругление гистограммы</td><td><code>5px</code></td></tr>
+
+                <!-- Специфические цвета для типов -->
+                <tr><td><code>--liker-like-active-color</code></td><td>Цвет активного лайка</td><td><code>#dc3545</code></td></tr>
+                <tr><td><code>--liker-thumbs-active-color</code></td><td>Цвет активной кнопки thumbs</td><td><code>#ffa500</code></td></tr>
+                <tr><td><code>--liker-thumbs-score-min-width</code></td><td>Минимальная ширина для отображения счёта thumbs</td><td><code>1.5em</code></td></tr>
+
+                <!-- Дополнительные -->
+                <tr><td><code>--qu-loading-size</code></td><td>Размер индикатора загрузки</td><td><code>20px</code></td></tr>
+                <tr><td><code>--qu-loading-bg</code></td><td>Фон индикатора загрузки</td><td><code>transparent</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h4>Пример переопределения переменных</h4>
+    <div class="pre-code"><pre class="hljs css"><code class="hljs language-css" data-highlighted="yes"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-comment">/* Глобально */</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2"><span class="hljs-selector-pseudo">:root</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">    <span class="hljs-attribute">--liker-text</span>: <span class="hljs-number">#2c3e50</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">    <span class="hljs-attribute">--liker-active-text</span>: <span class="hljs-number">#e74c3c</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">    <span class="hljs-attribute">--liker-bg</span>: <span class="hljs-number">#ecf0f1</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    <span class="hljs-attribute">--liker-border</span>: <span class="hljs-number">#bdc3c7</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">    <span class="hljs-attribute">--liker-radius</span>: <span class="hljs-number">8px</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">    <span class="hljs-attribute">--liker-btn-padding</span>: <span class="hljs-number">0.5rem</span> <span class="hljs-number">1rem</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">    <span class="hljs-attribute">--liker-shadow</span>: <span class="hljs-number">0</span> <span class="hljs-number">2px</span> <span class="hljs-number">4px</span> <span class="hljs-built_in">rgba</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0.1</span>);</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">    <span class="hljs-attribute">--liker-transition</span>: <span class="hljs-number">0.2s</span> ease;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">    <span class="hljs-attribute">--liker-star-filled-bg</span>: <span class="hljs-built_in">url</span>(<span class="hljs-string">'data:image/svg+xml,...'</span>); <span class="hljs-comment">/* свой SVG */</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">    <span class="hljs-attribute">--liker-bar-fill</span>: <span class="hljs-number">#3498db</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">}</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14"> </td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15"><span class="hljs-comment">/* Локально для конкретного контейнера */</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="16"><div class="hljs-ln-n" data-line-number="16"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="16"><span class="hljs-selector-class">.my-custom-liker</span> {</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="17"><div class="hljs-ln-n" data-line-number="17"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="17">    <span class="hljs-attribute">--liker-bg</span>: <span class="hljs-number">#ffffff</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="18"><div class="hljs-ln-n" data-line-number="18"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="18">    <span class="hljs-attribute">--liker-border</span>: <span class="hljs-number">#2ecc71</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="19"><div class="hljs-ln-n" data-line-number="19"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="19">    <span class="hljs-attribute">--liker-radius</span>: <span class="hljs-number">20px</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="20"><div class="hljs-ln-n" data-line-number="20"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="20">    <span class="hljs-attribute">--liker-btn-padding</span>: <span class="hljs-number">0.8rem</span> <span class="hljs-number">1.5rem</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="21"><div class="hljs-ln-n" data-line-number="21"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="21">    <span class="hljs-attribute">--liker-icon-size</span>: <span class="hljs-number">24px</span>;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="22"><div class="hljs-ln-n" data-line-number="22"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="22">}</td></tr></tbody></table></code></pre></div>
+
+    
+<blockquote  class="blockquote border-start border-4 border-info bg-light bg-opacity-50  ps-4 pe-1 py-3 fs-6 my-3 ">
+    
+        <p class="fw-bold h5">💡 Совет</p>
+        <p>
+            Для быстрого старта используйте встроенные темы: <code>data-qu-liker-theme="borders"</code> или <code>"dark"</code>. 
+            Они задают базовые переменные, которые можно переопределить при необходимости.
+        </p>
+        
+</blockquote>
+
+</section>
+
+
+        </div>
+        
+    </div>
+    
+</div>
+    
+    
+
+<div class="section-margin footer">
+    <div class="container-xxl">
+        <div class="row justify-content-center">
+            <div class="col col-md-11 text-center text-secondary small  mt-7">
+                &copy; 2025-2026
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div style="position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); font-family: verdana; color: #fff; padding: 10px; z-index: 100;text-align: center; font-size: 13px;">
+id: <b>11</b> <a href="/manager/?a=resource/update&id=11" target="_blank" style="color: #fff;text-decoration: none;">⚙️</a>
+</div>
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" async></script>
+
+</body>
+</html>

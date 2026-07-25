@@ -11,20 +11,32 @@ Qu.js is a utility JavaScript library that provides independent tools for solvin
 
 It does not impose any specific architecture. Instead, it gives you convenient tools that can be used separately or together. Thanks to its promise-based API and the `Que` queue system, you can build dependency chains and ensure that code runs at the right moment — whether it is page load, an element appearing in the viewport, or a specific variable becoming available.
 
-# Key features
+# Key Features
 
-- **Task queue** (`Que`) — delay function execution until one or more events occur (DOMReady, library load, custom signal). Supports `multi` (all events), `series` (sequential events), and `ordered` (strict order) modes.
-- **Event management** (`on`, `off`, `trigger`) — subscribe to events with delegation, support collections of elements, and optionally collect responses from handlers.
-- **Variable appearance tracking** (`def`) — react when a global variable or one of its nested properties becomes defined.
-- **Asset loading** (`loadAssets`) — load scripts, styles, and images with order control and promise support.
-- **Modular architecture** — the core library acts as the kernel, while additional modules (for example, Lazy for lazy loading) are connected as plugins via `Qu.lib()`.
-- Plus a few utility helpers for working with the DOM and scrolling.
+- **Task Queue** (`Que — Qu.when`) — defer function execution until one or more events occur (DOMReady, library load, custom signal).
+  - Supports `multi` (all events), `series` (sequential events), and `ordered` (strict order) modes.
+  - Event caching — flexibly subscribe to events that have already occurred in async scenarios, thanks to built-in cache (`useCache: true` by default).
+
+- **Event Management** (`on`, `off`, `trigger`) — subscribe to events with delegation, collection support, and the ability to collect responses from handlers.
+
+- **Variable Tracking** (`def`) — react when a global variable or its nested property becomes defined or changes. Supports interval mode for tracking changes outside direct assignment.
+
+- **Asset Loading** (`loadAssets`) — load scripts, styles, and images with order control and promises.
+
+- **Promise-based Modular Architecture** — the core library serves as the foundation, and additional modules (e.g., Lazy for lazy loading) are plugged in as plugins via `Qu.lib()`. Manage module dependencies through `Qu.when` on events like `qu:Module*:ready` and initialize modules via `Qu.libs()`.
+
+- **DOM and Scroll Utilities**:
+  - `scrollTo` — smooth scrolling with promise; `scrollToAccurate` — repeated scrolling after the first completion to compensate for layout shifts (e.g., due to font or image loading).
+  - `dragScroll` — drag-to-scroll.
+  - `scrollFollowCursor` — follow the cursor.
+  - Adaptive breakpoints — screen size checking system (`up`, `down`, `only`, `between`) with automatic updates and the `qu:breakpoint:change` event.
+  - ...
 
 # Philosophy
 
 > **Que comes from "queue", Qu comes from "query". The core idea is simple: tasks go into a queue and run on demand.**
 
-This is a collection of tools originally designed to work well with `async`/`defer`, so scripts do not block page loading — this approach proved convenient in real projects. Some parts of the code were generated with AI and then manually refined. The utilities are aimed at modern browsers.
+This is a collection of tools originally designed to work well with `async`/`defer` — this approach proved convenient in real projects. Some parts of the code were generated with AI and then manually refined. The utilities are aimed at modern browsers.
 
 This is not a set of ES modules. Qu.js is included as a whole and works through the global `Qu` object. Importing individual functions is not supported and is not planned for now.
 
