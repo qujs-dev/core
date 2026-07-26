@@ -1,9 +1,9 @@
 ﻿/*!
- * Qu v1.2.6
+ * Qu v1.2.7
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
- * @copyright 2025
+ * @copyright 2026
  * @license MIT
  * @website https://qujs.ru/
  */
@@ -46,7 +46,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.6',
+        version: '1.2.7',
 
         bus: document,
 
@@ -330,10 +330,6 @@
             }
 
             return parents;
-        },
-
-        getElementStyles: function (element) {
-            return element.currentStyle || window.getComputedStyle(element);
         },
 
         _getNested: function (path) {
