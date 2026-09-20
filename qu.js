@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.7
+ * Qu v1.2.8
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -46,7 +46,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.7',
+        version: '1.2.8',
 
         bus: document,
 
@@ -1773,7 +1773,7 @@
 
         scrollTo: function(element, options) {
             options = options || {};
-            const lockEvents = options.lockEvents === true;
+            const lockEvents = options.lockEvents ?? true;
         
             const originalScrollTo = (el, opts) => {
                 return new Promise((resolve) => {
