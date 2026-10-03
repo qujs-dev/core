@@ -1,4 +1,6 @@
 if (!window.Que) {
+    window._QuStartTime = performance.now();
+    
     (function () {
         var bus = (window.Qu && window.Qu.bus) || document;
         var originalDispatch = bus.dispatchEvent;

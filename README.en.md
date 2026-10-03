@@ -136,7 +136,7 @@ CDN servers usually have HTTP/2-3 enabled by default, but free CDNs are not alwa
 
 With HTTP/1.1, browsers limit the number of simultaneous connections to the same domain, so `async`/`defer` scripts will still end up queued. With HTTP/2-3, multiplexing allows all resources to be loaded in parallel without extra delay.
 
-If the server runs on HTTP/1.1 and the Qu.js files are physically hosted on that same server, using `async`/`defer` does not reduce loading bottlenecks much. In that case, bundling scripts into a single file may be the better option — old-school, but reliable.
+If the server is running on HTTP/1.1 and the library files qu.js are physically located on it, using async/defer does not reduce the number of parallel downloads. Or, if there are a lot of libraries and they can be combined, it’s better to bundle the scripts into one bundle (an old‑school and reliable method).
 
 # Code examples
 

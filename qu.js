@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.8
+ * Qu v1.2.9
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -18,26 +18,70 @@
     }
 
     const scriptConfig = {};
+    const DEBUG_PREFIX = 'qu:debug:';
+    let debugOff = false;
+
+    const debugStore = {
+        get(key) {
+            try { return localStorage.getItem(DEBUG_PREFIX + key); }
+            catch (e) { return null; }
+        },
+        set(key, val) {
+            try {
+                if (val == null) localStorage.removeItem(DEBUG_PREFIX + key);
+                else localStorage.setItem(DEBUG_PREFIX + key, val ? '1' : '0');
+            } catch (e) {}
+        },
+        clear() {
+            try {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.indexOf(DEBUG_PREFIX) === 0) keys.push(k);
+                }
+                keys.forEach(k => localStorage.removeItem(k));
+            } catch (e) {}
+        }
+    };
+
+    let _lowerParams = null;
+    function getLowerParams() {
+        if (_lowerParams) return _lowerParams;
+        _lowerParams = Object.create(null);
+        if (typeof location === 'undefined' || !location.search) return _lowerParams;
+        const params = new URLSearchParams(location.search);
+        for (const [k, v] of params) _lowerParams[k.toLowerCase()] = v;
+        return _lowerParams;
+    }
+
 
     if (typeof location !== 'undefined' && location.search) {
-        const params = new URLSearchParams(location.search);
-
-        const urlSettings = [
-            ['_qudebug', '_debug'],
-            ['_qudebugType', '_debugType'],
-            ['_qudebugEvents', '_debugEvents']
-        ];
-
-        for (const [urlParam, configKey] of urlSettings) {
-            if (params.has(urlParam)) {
-                const val = params.get(urlParam);
-                if (val === '0' || val === 'false') {
-                    scriptConfig[configKey] = false;
-                } else if (val === '1' || val === 'true') {
-                    scriptConfig[configKey] = true;
+        const lower = getLowerParams();
+        const dbg = (lower['_qudebug'] || '').toLowerCase();
+    
+        if (dbg === 'off') {
+            debugStore.clear();
+            debugOff = true;
+        } else {
+            const urlSettings = [
+                ['_qudebug', '_debug'],
+                ['_qudebugtype', '_debugType'],
+                ['_qudebugevents', '_debugEvents'],
+                ['_qudebugtime', '_debugTime']
+            ];
+    
+            for (const [urlParam, configKey] of urlSettings) {
+                if (urlParam in lower) {
+                    const val = (lower[urlParam] || '').toLowerCase();
+                    debugStore.set(configKey, val === '1' || val === 'true');
                 }
             }
         }
+    }
+
+    for (const key of ['_debug', '_debugType', '_debugEvents', '_debugTime']) {
+        const stored = debugStore.get(key);
+        if (stored !== null) scriptConfig[key] = stored === '1';
     }
 
     const config = {
@@ -46,13 +90,15 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.8',
+        version: '1.2.9',
 
         bus: document,
 
         _debug: false,
         _debugType: true,
         _debugEvents: false,
+        _debugTime: true,
+        _startTime: window._QuStartTime || performance.now(),
 
         _initOnce: false,
 
@@ -199,6 +245,10 @@
 
             if (finalConfig._debugEvents !== undefined) {
                 this._debugEvents = finalConfig._debugEvents;
+            }
+
+            if (finalConfig._debugTime !== undefined) {
+                this._debugTime = finalConfig._debugTime;
             }
 
             this.bus = finalConfig.bus || document;
@@ -2602,13 +2652,23 @@
             }, {});
         },
 
+
         debug: function (message) {
             if (!this._debug) return;
 
             const args = Array.prototype.slice.call(arguments, 1);
 
+            let payload = [message].concat(args);
+
+            if (this._debugTime) {
+                const elapsed = performance.now() - Qu._startTime;
+                const timeStr = `%c+${elapsed.toFixed(0)}ms `;
+                const timeCSS = 'color: #888; font-weight: normal; font-size: 0.8em;';
+                payload = [timeStr, timeCSS, message].concat(args);
+            }
+
             if (this._debugType) {
-                console.groupCollapsed.apply(console, [message].concat(args));
+                console.groupCollapsed.apply(console, payload);
                 console.trace();
 
                 try {
@@ -2620,7 +2680,7 @@
 
                 console.groupEnd();
             } else {
-                console.debug.apply(console, [message].concat(args));
+                console.debug.apply(console, payload);
             }
         },
 
@@ -2650,16 +2710,25 @@
 
             this.debug('📚 [Qu] Library registered:', name);
 
-            if (typeof location !== 'undefined' && location.search) {
-                const params = new URLSearchParams(location.search);
-                const debugParam = '_qu-' + name.toLowerCase() + '-debug';
+            const libKey = 'lib:' + name.toLowerCase();
+            const debugParam = '_qu-' + name.toLowerCase() + '-debug';
+                
+            const lower = getLowerParams();
+            if (debugParam in lower) {
+                const val = lower[debugParam].toLowerCase();
+                instance._urlDebug = (val === '1' || val === 'true');
 
-                if (params.has(debugParam)) {
-                    const val = params.get(debugParam);
-                    if (val == '0') instance._urlDebug = false;
-                    else if (val == '1') instance._urlDebug = true;
+                if (!debugOff) {
+                    debugStore.set(libKey, instance._urlDebug);
                 }
             }
+        
+            if (instance._urlDebug === undefined) {
+                const stored = debugStore.get(libKey);
+                if (stored !== null) instance._urlDebug = stored === '1';
+            }
+
+            this._setupLibraryDebug(instance, {});  
 
             if (instance) this[name] = instance;
 
@@ -2841,18 +2910,12 @@
         }
     };
 
-    if (typeof location !== 'undefined' && location.search) {
-        const params = new URLSearchParams(location.search);
-
-        if (params.get('_qudebug') === '1') Qu._debug = true;
-        if (params.get('_qudebugType') === '1') Qu._debugType = true;
-        if (params.get('_qudebugEvents') === '1') Qu._debugEvents = true;
-    }
+    Object.assign(Qu, scriptConfig);
 
     window.Qu = Qu;
 
-    Qu.debug('📚 [Qu] Registered');
     Qu.extend();
+    Qu.debug('📚 [Qu] Registered');
     Qu.loaded();
 
     // Совместимость с Que
