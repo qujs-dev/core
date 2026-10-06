@@ -94,6 +94,39 @@ var bus = (window.Qu && window.Qu.bus) || window;
 
 P.S. You can skip the loader — `qu.js` already contains a recovery mechanism for `window._QueQ`. However, in that case, events that happened before the core was loaded will not be cached, and `Que` will not be able to react to them if they have already fired.
 
+## Debugging (debug)
+
+Qu.js keeps a log of its own activity — initialization, DOM readiness, `Que` queue resolution, module registration and initialization. It makes it easier to understand what the script is doing and in what order.
+
+Logging is off by default to keep the console clean. It's enabled via URL parameters; settings are persisted in `localStorage`, so you only need to enable it once — after that you can navigate between pages without any parameters.
+
+### Controls
+
+| URL parameter            | Action                                                       |
+| ------------------------ | ------------------------------------------------------------ |
+| `?&_qudebug=1`           | Enable debug and remember                                    |
+| `?&_qudebug=0`           | Disable and remember                                         |
+| `?&_qudebug=off`         | Clear all saved flags (full reset)                           |
+| `?&_qudebugtype=1`       | Logs with `console.groupCollapsed`                           |
+| `?&_qudebugtype=0`       | Plain `console.debug` without groups                         |
+| `?&_qudebugevents=1`     | Log events `on` / `off` / `trigger`                          |
+| `?&_qudebugevents=0`     | Don't log events                                             |
+| `?&_qudebugtime=1`       | Enable time output `+100ms`                                  |
+| `?&_qudebugtime=0`       | Disable time output                                          |
+
+### Custom messages
+
+The same log can be used from your own code:
+
+```js
+Qu.debug('Initializing cart', { items: 3 });
+Qu.debug('Products loaded', response);
+
+// add to the event log
+if (Qu._debugEvents) {
+    Qu.debug(`📦[${LIB_NAME}] event fired`, payload);
+}
+
 ## Libraries / application modules
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/qujs-dev/core@main/css/qu.min.css"

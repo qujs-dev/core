@@ -1,5 +1,5 @@
 ﻿/*!
- * Qu v1.2.9
+ * Qu v1.3.0
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.2.9',
+        version: '1.3.0',
 
         bus: document,
 
@@ -2749,11 +2749,14 @@
             options = options || {};
 
             const _this = this;
+            const waitAll = options.waitAll === true;  
+
             const cacheKey = JSON.stringify(this.deepSortObject({
                 libs: libNames.slice().sort(),
                 autoInit: options.autoInit === true ? true : false,
                 excludeInit: (options.excludeInit || []).sort(),
-                initParams: options.initParams || {}
+                initParams: options.initParams || {},
+                waitAll: waitAll   
             }));
 
             const fireAlwaysEvent = (instances, cached) => {
@@ -2780,6 +2783,7 @@
                 const excludeInit = options.excludeInit || [];
                 const loadedLibs = new Set();
                 const initPromises = [];
+                let initialized = false; 
 
                 const fireReady = (instance, libIdentifier) => {
                     this.trigger(this.bus, 'qu:' + libIdentifier + ':ready', {
@@ -2833,60 +2837,80 @@
                     resolve(instancesObj);
                 };
 
+                
+                const initAll = (loadType) => {
+                    if (initialized) return;
+                    initialized = true;
+
+                    if (autoInit) {
+                        libNames.forEach(libName => {
+                            const instance = _this[libName];
+                            if (instance) processLib(instance);
+                        });
+                    }
+
+                    const instancesObj = {};
+                    libNames.forEach(lib => { instancesObj[lib] = _this[lib]; });
+
+                    if (autoInit) {
+                        Promise.all(initPromises).then(function () {
+                            completeLoading(instancesObj, loadType);
+                        });
+                    } else {
+                        completeLoading(instancesObj, loadType);
+                    }
+                };
+
                 const handler = (event) => {
                     const libName = event.detail.name;
 
                     if (libNames.includes(libName)) {
                         loadedLibs.add(libName);
 
-                        const instance = _this[libName];
-                        if (instance) processLib(instance);
+                        if (waitAll) {
+                            // ждём всех, потом init всех
+                            if (libNames.every(lib => loadedLibs.has(lib))) {
+                                this.bus.removeEventListener('qu:lib:loaded', handler);
+                                initAll('lazy-loaded');
+                            }
+                        } else {
+                            const instance = _this[libName];
+                            if (instance) processLib(instance);
 
-                        if (libNames.every(lib => loadedLibs.has(lib))) {
-                            this.bus.removeEventListener('qu:lib:loaded', handler);
+                            if (libNames.every(lib => loadedLibs.has(lib))) {
+                                this.bus.removeEventListener('qu:lib:loaded', handler);
 
-                            const instancesObj = {};
-                            libNames.forEach(lib => {
-                                instancesObj[lib] = _this[lib];
-                            });
-
-                            if (autoInit) {
-                                Promise.all(initPromises).then(function () {
-                                    completeLoading(instancesObj, 'lazy-loaded');
+                                const instancesObj = {};
+                                libNames.forEach(lib => {
+                                    instancesObj[lib] = _this[lib];
                                 });
-                            } else {
-                                completeLoading(instancesObj, 'lazy-loaded');
+
+                                if (autoInit) {
+                                    Promise.all(initPromises).then(function () {
+                                        completeLoading(instancesObj, 'lazy-loaded');
+                                    });
+                                } else {
+                                    completeLoading(instancesObj, 'lazy-loaded');
+                                }
                             }
                         }
                     }
                 };
 
                 this.bus.addEventListener('qu:lib:loaded', handler);
-
+                
                 libNames.forEach(libName => {
-                    if (_this[libName]) {
-                        loadedLibs.add(libName);
-
-                        if (autoInit) {
-                            processLib(_this[libName]);
-                        }
-                    }
+                    if (_this[libName]) loadedLibs.add(libName);
                 });
-
+        
                 if (libNames.every(lib => loadedLibs.has(lib))) {
                     this.bus.removeEventListener('qu:lib:loaded', handler);
-
-                    const instancesObj = {};
-                    libNames.forEach(lib => {
-                        instancesObj[lib] = _this[lib];
-                    });
-
+                    initAll('pre-loaded');
+                } else if (!waitAll) {
                     if (autoInit) {
-                        Promise.all(initPromises).then(function () {
-                            completeLoading(instancesObj, 'pre-loaded');
+                        libNames.forEach(libName => {
+                            if (_this[libName]) processLib(_this[libName]);
                         });
-                    } else {
-                        completeLoading(instancesObj, 'pre-loaded');
                     }
                 }
             });
