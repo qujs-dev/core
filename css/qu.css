@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --qu-transition-duration: 0.3s;
     --qu-transition-func: ease;
     --qu-transition: all var(--qu-transition-duration) var(--qu-transition-func);

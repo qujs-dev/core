@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * Qu v1.3.0
  * Custom utilities
  *
