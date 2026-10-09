@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.0
+ * Qu v1.3.2
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.0',
+        version: '1.3.2',
 
         bus: document,
 
@@ -1821,9 +1821,94 @@
             }
         },
 
+        // https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo
+        // есть но не поддерживается везде пола что
         scrollTo: function(element, options) {
             options = options || {};
             const lockEvents = options.lockEvents ?? true;
+            const waitAssets = options.waitAssets === true;
+            const self = this;
+
+            const body = document.body;
+
+            function setState(name) {
+                if (body) body.setAttribute('data-qu-scrollto', name);
+                self.trigger(self.bus, 'qu:scrollto:state', { detail: { state: name } });
+            }
+            function clearState() {
+                if (body) body.removeAttribute('data-qu-scrollto');
+                self.trigger(self.bus, 'qu:scrollto:state', { detail: { state: null } });
+            }
+        
+             function idle() {
+                return new Promise(function (resolve) {
+                    function empty() {
+                        return (self._loadingAssets ? self._loadingAssets.size : 0) === 0;
+                    }
+                    function loop() {
+                        if (empty()) {
+                            requestAnimationFrame(function () {
+                                requestAnimationFrame(resolve);
+                            });
+                            return;
+                        }
+                        requestAnimationFrame(loop);
+                    }
+                    loop();
+                });
+            }
+
+            // Ждёт: 1) очередь пуста, 2) позиция element стабильна N кадров подряд
+           /*  function idle() {
+                return new Promise(function (resolve) {
+                    var stableFrames = 0;
+                    var STABLE_NEEDED = 3;   // сколько кадров позиция должна стоять
+                    var lastTop = null;
+
+                    function empty() {
+                        return (self._loadingAssets ? self._loadingAssets.size : 0) === 0;
+                    }
+
+                    function getTop() {
+                        try {
+                            return element && element.getBoundingClientRect
+                                ? element.getBoundingClientRect().top
+                                : 0;
+                        } catch (e) { return 0; }
+                    }
+
+                    function loop() {
+                        requestAnimationFrame(function () {
+                            var top = getTop();
+
+                            // layout сдвинулся — сбрасываем счётчик стабильности
+                            if (lastTop !== null && Math.abs(top - lastTop) > 1) {
+                                stableFrames = 0;
+                            } else {
+                                stableFrames++;
+                            }
+                            lastTop = top;
+
+                            // очередь не пуста — ждём (layout точно поедет)
+                            if (!empty()) {
+                                stableFrames = 0;
+                                loop();
+                                return;
+                            }
+
+                            // очередь пуста И позиция стабильна достаточно кадров — выходим
+                            if (stableFrames >= STABLE_NEEDED) {
+                                resolve();
+                                return;
+                            }
+
+                            loop();
+                        });
+                    }
+
+                    loop();
+                });
+            } */
         
             const originalScrollTo = (el, opts) => {
                 return new Promise((resolve) => {
@@ -1915,23 +2000,61 @@
                 });
             };
         
-            if (!lockEvents) {
-                return originalScrollTo.call(this, element, options);
-            }
-        
-            const lockOpts = {
-                allowScrollContainers: options.allowScrollContainers !== false
+            const finish = (result) => {
+                if (lockEvents) this._unlockScrollEvents();
+                clearState();
+                return result;
             };
-            this._lockScrollEvents(lockOpts);
-            return originalScrollTo.call(this, element, options)
+            
+            const runOnce = () => {
+                setState('scroll');
+                if (!lockEvents) return originalScrollTo.call(this, element, options);
+            
+                const lockOpts = {
+                    allowScrollContainers: options.allowScrollContainers !== false
+                };
+                this._lockScrollEvents(lockOpts);
+                return originalScrollTo.call(this, element, options);
+            };
+            
+            if (!waitAssets) {
+                return runOnce()
+                    .then((result) => finish(result))
+                    .catch((err) => { finish(); throw err; });
+            }
+            
+            let started = false;
+            const onBefore = () => { started = true; };
+            this.bus.addEventListener('qu:assets:before', onBefore);
+            
+            // ЦИКЛ: скролл → если очередь не пуста → ждём → снова скролл → ...
+            const cycle = () => {
+                return runOnce().then(() => {
+                    const size = self._loadingAssets ? self._loadingAssets.size : 0;
+            
+                    // очередь пуста и ничего не стартовало — выходим
+                    if (size === 0 && !started) return;
+            
+                    // что-то грузится — ставим wait, ждём, потом скроллим снова
+                    setState('wait');
+                    return idle().then(() => {
+                        started = false;   // сброс — готовы ловить новые старты на след. итерации
+                        return cycle();    // ← рекурсия
+                    });
+                });
+            };
+            
+            return cycle()
                 .then((result) => {
-                    this._unlockScrollEvents();
-                    return result;
+                    this.bus.removeEventListener('qu:assets:before', onBefore);
+                    return finish(result);
                 })
                 .catch((err) => {
-                    this._unlockScrollEvents();
+                    this.bus.removeEventListener('qu:assets:before', onBefore);
+                    finish();
                     throw err;
                 });
+            
         },
 
         scrollToAccurate: function(element, options) {
@@ -1966,9 +2089,11 @@
             if (container._dragScrollEnabled) return;
 
             container._dragScrollEnabled = true;
-            container.setAttribute('data-qu-drag-scroll', '');
 
-            if (container.scrollWidth > container.clientWidth + 1) {
+            var needsDrag = container.scrollWidth > container.clientWidth + 1; 
+            
+            container.setAttribute('data-qu-drag-scroll', '');
+            if (needsDrag) {
                 container.setAttribute('data-qu-draggable', 'true');
             } else {
                 container.removeAttribute('data-qu-draggable');
@@ -2533,8 +2658,8 @@
                             reject(error);
                         };
 
-                        document.head.appendChild(link);
-                        return;
+                        //document.head.appendChild(link);
+                        break;
 
                     case 'image':
                         element = new Image();
@@ -2558,7 +2683,7 @@
                             });
                             reject(new Error('Failed to load image: ' + item));
                         };
-                        return;
+                        break;
 
                     case 'inline':
                         if (item.css) {
