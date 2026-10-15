@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.3
+ * Qu v1.3.4
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.3',
+        version: '1.3.4',
 
         bus: document,
 
@@ -2115,14 +2115,17 @@
 
             container._dragScrollEnabled = true;
 
-            var needsDrag = container.scrollWidth > container.clientWidth + 1; 
-            
             container.setAttribute('data-qu-drag-scroll', '');
-            if (needsDrag) {
-                container.setAttribute('data-qu-draggable', 'true');
-            } else {
-                container.removeAttribute('data-qu-draggable');
-            }
+
+            requestAnimationFrame(() => {
+                if (!container._dragScrollEnabled) return;
+                const needsDrag = container.scrollWidth > container.clientWidth + 1;
+                if (needsDrag) {
+                    container.setAttribute('data-qu-draggable', 'true');
+                } else {
+                    container.removeAttribute('data-qu-draggable');
+                }
+            });
 
             const exclude = options.exclude !== undefined ? options.exclude : null;
             const speed = options.speed !== undefined ? options.speed : 1.5;
@@ -2142,19 +2145,19 @@
                 if (e.type === 'mousedown' && exclude && typeof exclude === 'string' && e.target.closest(exclude)) {
                     return;
                 }
-
+            
                 const point = e.touches ? e.touches[0] : e;
-
+            
                 container.setAttribute('data-qu-dragging', '');
                 dragActive = true;
                 isDown = true;
                 moved = false;
-
-                startX = point.pageX;
-                startY = point.pageY;
+            
+                startX = point.clientX;
+                startY = point.clientY;
                 startScrollLeft = container.scrollLeft;
                 startScrollTop = container.scrollTop;
-
+            
                 e.preventDefault();
             };
 
@@ -2173,20 +2176,20 @@
 
             const onMove = (e) => {
                 if (!isDown) return;
-
+            
                 const point = e.touches ? e.touches[0] : e;
-                const deltaX = Math.abs(point.pageX - startX);
-                const deltaY = Math.abs(point.pageY - startY);
-
+                const deltaX = Math.abs(point.clientX - startX);
+                const deltaY = Math.abs(point.clientY - startY);
+            
                 if (deltaX > threshold || deltaY > threshold) {
                     moved = true;
                     e.preventDefault();
-
+            
                     if (animationFrame) return;
-
+            
                     animationFrame = requestAnimationFrame(() => {
-                        container.scrollLeft = startScrollLeft - (point.pageX - startX) * speed;
-                        container.scrollTop = startScrollTop - (point.pageY - startY) * speed;
+                        container.scrollLeft = startScrollLeft - (point.clientX - startX) * speed;
+                        container.scrollTop = startScrollTop - (point.clientY - startY) * speed;
                         animationFrame = null;
                     });
                 }
@@ -3140,6 +3143,38 @@
     }
 
     Qu.trigger(Qu.bus, 'qu:loaded');
+
+    if (Qu._debug && 'PerformanceObserver' in window) {
+        try {
+            new PerformanceObserver((list) => {
+                for (const e of list.getEntries()) {
+                    if (e.duration < 50) continue;
+    
+                    const attr = (e.attribution && e.attribution[0]) || null;
+    
+                    const duration = Math.round(e.duration);
+                    const name     = e.name || '?';
+                    const start    = Math.round(e.startTime);
+                    const srcName  = attr ? (attr.name || '?') : '?';
+                    const contName = attr ? (attr.containerName || '') : '';
+                    const contType = attr ? (attr.containerType || '') : '';
+                    const contSrc  = attr ? (attr.containerSrc  || '') : '';
+    
+                    const elapsed = performance.now() - Qu._startTime;
+    
+                    console.warn(
+                        '+' + elapsed.toFixed(0) + ' ms',
+                        '🔴 Long task:', duration, 'ms',
+                        '| start:', start, 'ms',
+                        '| name: ' + name,
+                        '| source: ' + srcName,
+                        (contType ? ' | container: ' + contType + ' ' + contName : ''),
+                        (contSrc  ? ' | src: ' + contSrc : '')
+                    );
+                }
+            }).observe({ entryTypes: ['longtask'] });
+        } catch (e) {}
+    }
 
     Qu.dom().then(() => {
         Qu.status.domReady = true;
