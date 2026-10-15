@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.2
+ * Qu v1.3.3
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.2',
+        version: '1.3.3',
 
         bus: document,
 
@@ -154,6 +154,7 @@
         _rootIntervalPeriod: 100,
 
         _globalScrollToken: 0,
+        _scrollToGen: 0,
 
         breakpoint: {
             get current() {
@@ -1821,31 +1822,49 @@
             }
         },
 
+
         // https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollTo
         // есть но не поддерживается везде пола что
-        scrollTo: function(element, options) {
+        scrollTo: function (element, options) {
             options = options || {};
-            const lockEvents = options.lockEvents ?? true;
+            let  lockEvents = options.lockEvents ?? true;
             const waitAssets = options.waitAssets === true;
             const self = this;
 
+            if (lockEvents && options.forceLock !== true && element && element.parentElement) {
+                let cur = element;
+                while (cur && cur.nodeType === 1) {
+                    const s = getComputedStyle(cur);
+                    const sy = /(auto|scroll)/.test(s.overflowY) && cur.scrollHeight > cur.clientHeight;
+                    const sx = /(auto|scroll)/.test(s.overflowX) && cur.scrollWidth  > cur.clientWidth;
+                    if (sy || sx) { lockEvents = false; break; }
+                    cur = cur.parentElement;
+                }
+            }
+        
+            const myGen = ++this._scrollToGen;
+            const isCurrent = () => this._scrollToGen === myGen;
+        
             const body = document.body;
-
+        
             function setState(name) {
+                if (!isCurrent()) return;
                 if (body) body.setAttribute('data-qu-scrollto', name);
                 self.trigger(self.bus, 'qu:scrollto:state', { detail: { state: name } });
             }
             function clearState() {
+                if (!isCurrent()) return;
                 if (body) body.removeAttribute('data-qu-scrollto');
                 self.trigger(self.bus, 'qu:scrollto:state', { detail: { state: null } });
             }
         
-             function idle() {
+            function idle() {
                 return new Promise(function (resolve) {
                     function empty() {
                         return (self._loadingAssets ? self._loadingAssets.size : 0) === 0;
                     }
                     function loop() {
+                        if (!isCurrent()) { resolve(); return; }
                         if (empty()) {
                             requestAnimationFrame(function () {
                                 requestAnimationFrame(resolve);
@@ -1857,58 +1876,29 @@
                     loop();
                 });
             }
-
-            // Ждёт: 1) очередь пуста, 2) позиция element стабильна N кадров подряд
-           /*  function idle() {
-                return new Promise(function (resolve) {
-                    var stableFrames = 0;
-                    var STABLE_NEEDED = 3;   // сколько кадров позиция должна стоять
-                    var lastTop = null;
-
-                    function empty() {
-                        return (self._loadingAssets ? self._loadingAssets.size : 0) === 0;
-                    }
-
-                    function getTop() {
-                        try {
-                            return element && element.getBoundingClientRect
-                                ? element.getBoundingClientRect().top
-                                : 0;
-                        } catch (e) { return 0; }
-                    }
-
-                    function loop() {
-                        requestAnimationFrame(function () {
-                            var top = getTop();
-
-                            // layout сдвинулся — сбрасываем счётчик стабильности
-                            if (lastTop !== null && Math.abs(top - lastTop) > 1) {
-                                stableFrames = 0;
-                            } else {
-                                stableFrames++;
-                            }
-                            lastTop = top;
-
-                            // очередь не пуста — ждём (layout точно поедет)
-                            if (!empty()) {
-                                stableFrames = 0;
-                                loop();
-                                return;
-                            }
-
-                            // очередь пуста И позиция стабильна достаточно кадров — выходим
-                            if (stableFrames >= STABLE_NEEDED) {
-                                resolve();
-                                return;
-                            }
-
-                            loop();
-                        });
-                    }
-
-                    loop();
+        
+            let settled = false;
+            let resolveOuter;
+            const outerPromise = new Promise(res => { resolveOuter = res; });
+        
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+        
+                if (!isCurrent()) {
+                    resolveOuter(false);
+                    return;
+                }
+        
+                if (lockEvents) this._unlockScrollEvents();
+                clearState();
+        
+                this.trigger(element, 'qu:scrollto:after', {
+                    detail: { element: element, options: options }
                 });
-            } */
+        
+                resolveOuter(true);
+            };
         
             const originalScrollTo = (el, opts) => {
                 return new Promise((resolve) => {
@@ -1961,9 +1951,12 @@
         
                     if (settings.behavior !== 'smooth') {
                         setTimeout(() => {
-                            this.trigger(el, 'qu:scrollto:after', {
-                                detail: { element: el, options: settings }
-                            });
+                            if (!isCurrent()) {
+                                //this.debug('scrollTO: behavior !isCurrent COVER');
+                                resolve(false);
+                                return;
+                            }
+                            //this.debug('scrollTO: behavior NOT COVER');
                             resolve(true);
                         }, 0);
                         return;
@@ -1971,90 +1964,120 @@
         
                     let scrollStarted = false;
                     let scrollEndTimeout;
+                    let fallbackTimeout;
+                    let iterDone = false;
+        
+                    const cleanup = () => {
+                        window.removeEventListener('scroll', onScrollCheck,  { capture: true });
+                        window.removeEventListener('scroll', handleScrollEnd,  { capture: true });
+                        clearTimeout(scrollEndTimeout);
+                        clearTimeout(fallbackTimeout);
+                    };
+        
+                    const finishIter = () => {
+                        if (iterDone) return;
+                        iterDone = true;
+                        cleanup();
+        
+                        if (!isCurrent()) {
+                            //this.debug('scrollTO: finishIter', false);
+                            resolve(false);
+                            return;
+                        }
+        
+                        //this.debug('scrollTO: finishIter', true);
+                        resolve(true);
+                    };
         
                     const onScrollCheck = () => { scrollStarted = true; };
+        
                     const handleScrollEnd = () => {
                         clearTimeout(scrollEndTimeout);
                         scrollEndTimeout = setTimeout(() => {
-                            window.removeEventListener('scroll', handleScrollEnd);
-                            this.trigger(el, 'qu:scrollto:after', {
-                                detail: { element: el, options: settings }
-                            });
-                            resolve(true);
+                            if (scrollStarted) {
+                                //this.debug('scrollTO: handleScrollEnd');
+                                finishIter();
+                            }
                         }, settings.scrollEndDelay);
                     };
+                    
+                    window.addEventListener('scroll', onScrollCheck,  { passive: true, capture: true });
+                    window.addEventListener('scroll', handleScrollEnd, { passive: true, capture: true });
         
-                    window.addEventListener('scroll', onScrollCheck, { passive: true });
-                    window.addEventListener('scroll', handleScrollEnd, { passive: true });
-        
-                    setTimeout(() => {
-                        window.removeEventListener('scroll', onScrollCheck);
+                    fallbackTimeout = setTimeout(() => {
                         if (!scrollStarted) {
-                            clearTimeout(scrollEndTimeout);
-                            this.trigger(el, 'qu:scrollto:after', {
-                                detail: { element: el, options: settings }
-                            });
-                            resolve(true);
+                            //this.debug('scrollTO: !scrollStarted NOTHING TO SCROLL');
+                            finishIter();
                         }
-                    }, 100);
+                    }, 300); // 100 не успевает
                 });
             };
         
-            const finish = (result) => {
-                if (lockEvents) this._unlockScrollEvents();
-                clearState();
-                return result;
-            };
-            
             const runOnce = () => {
+                if (!isCurrent()) return Promise.resolve(false);
                 setState('scroll');
+        
                 if (!lockEvents) return originalScrollTo.call(this, element, options);
-            
+        
                 const lockOpts = {
                     allowScrollContainers: options.allowScrollContainers !== false
                 };
                 this._lockScrollEvents(lockOpts);
                 return originalScrollTo.call(this, element, options);
             };
-            
+        
             if (!waitAssets) {
-                return runOnce()
-                    .then((result) => finish(result))
+                runOnce()
+                    .then(() => finish())
                     .catch((err) => { finish(); throw err; });
+        
+                return outerPromise;
             }
-            
+        
             let started = false;
             const onBefore = () => { started = true; };
             this.bus.addEventListener('qu:assets:before', onBefore);
-            
-            // ЦИКЛ: скролл → если очередь не пуста → ждём → снова скролл → ...
+        
             const cycle = () => {
+                if (!isCurrent()) return Promise.resolve(false);
+        
                 return runOnce().then(() => {
+                    if (!isCurrent()) return false;
+        
                     const size = self._loadingAssets ? self._loadingAssets.size : 0;
-            
-                    // очередь пуста и ничего не стартовало — выходим
-                    if (size === 0 && !started) return;
-            
-                    // что-то грузится — ставим wait, ждём, потом скроллим снова
+                    if (size === 0 && !started) return false;
+        
                     setState('wait');
+       /*              const waitFn = started
+                        ? new Promise(res => setTimeout(res, 150))
+                        : idle();
+
+                    return waitFn.then(() => {
+                        if (!isCurrent()) return false;
+                        started = false;
+                        return cycle();
+                    }); */
+
                     return idle().then(() => {
-                        started = false;   // сброс — готовы ловить новые старты на след. итерации
-                        return cycle();    // ← рекурсия
+                        if (!isCurrent()) return false;
+                        started = false;
+                        return cycle();
                     });
                 });
             };
-            
-            return cycle()
-                .then((result) => {
+        
+            cycle()
+                .then(() => {
                     this.bus.removeEventListener('qu:assets:before', onBefore);
-                    return finish(result);
+                    finish();
                 })
                 .catch((err) => {
                     this.bus.removeEventListener('qu:assets:before', onBefore);
                     finish();
                     throw err;
                 });
-            
+        
+            return outerPromise;
         },
 
         scrollToAccurate: function(element, options) {
@@ -2081,6 +2104,8 @@
                     throw err;
                 });
         },
+
+
 
         dragScroll: function (container, options) {
             options = options || {};
