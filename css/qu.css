@@ -1,108 +1,144 @@
 /* ============================================================
-   СЛОЙ 1 — база темы (меняешь здесь)
+   СЛОЙ 1 — база темы с -custom-паттерном
+   Каждая переменная: var(--<имя>-custom, <дефолт>).
+   Оверрайд пишет только --<имя>-custom — порядок загрузки не важен,
+   т.к. --<имя> и --<имя>-custom не конкурируют в каскаде.
    ============================================================ */
-   :root {
-    --que-primary: #3b82f6;
-    --que-success: #10b981;
-    --que-danger:  #ef4444;
-    --que-warning: #f59e0b;
-    --que-info:    #06b6d4;
+   :root,
+   [data-qu-theme] {
+    /* ---------- Палитра ---------- */
+    --que-primary: var(--que-primary-custom, #3b82f6);
+    --que-success: var(--que-success-custom, #10b981);
+    --que-danger:  var(--que-danger-custom,  #ef4444);
+    --que-warning: var(--que-warning-custom, #f59e0b);
+    --que-info:    var(--que-info-custom,    #06b6d4);
 
-    --que-bg:            #ffffff;
-    --que-bg-soft:       #f9fafb;
-    --que-bg-strong:     #e5e7eb;
-    --que-text:          #1f2937;
-    --que-text-muted:    #6b7280;
-    --que-text-soft:     #9ca3af;
-    --que-border:        #e5e7eb;
-    --que-border-hover:  #d1d5db;
-    --que-border-active: #9ca3af;
-    --que-backdrop:      rgba(0, 0, 0, 0.1);
-    --que-on-accent:     #ffffff;
+    /* ---------- Базовые цвета ---------- */
+    --que-bg:            var(--que-bg-custom,            #ffffff);
+    --que-bg-soft:       var(--que-bg-soft-custom,       #f9fafb);
+    --que-bg-strong:     var(--que-bg-strong-custom,     #e5e7eb);
+    --que-text:          var(--que-text-custom,          #1f2937);
+    --que-text-muted:    var(--que-text-muted-custom,    #6b7280);
+    --que-text-soft:     var(--que-text-soft-custom,     #9ca3af);
+    --que-border:        var(--que-border-custom,        #e5e7eb);
+    --que-border-hover:  var(--que-border-hover-custom,  #d1d5db);
+    --que-border-active: var(--que-border-active-custom, #9ca3af);
+    --que-backdrop:      var(--que-backdrop-custom,      rgba(0, 0, 0, 0.1));
+    --que-on-accent:     var(--que-on-accent-custom,     #ffffff);
 
-    --que-font:        inherit;
-    --que-font-size:   1rem;
-    --que-line-height: 1.5;
+    /* ---------- Типографика ---------- */
+    --que-font:        var(--que-font-custom,        inherit);
+    --que-font-size:   var(--que-font-size-custom,   1rem);
+    --que-line-height: var(--que-line-height-custom, 1.3);
 
-    --que-radius:      8px;
-    --que-radius-sm:   4px;
-    --que-radius-lg:   12px;
-    --que-radius-full: 9999px;
-    --que-space:       1rem;
+    /* ---------- Радиусы / шкала ---------- */
+    --que-radius:      var(--que-radius-custom,      8px);
+    --que-radius-sm:   var(--que-radius-sm-custom,   4px);
+    --que-radius-lg:   var(--que-radius-lg-custom,   12px);
+    --que-radius-full: var(--que-radius-full-custom, 100%);
+    --que-space:       var(--que-space-custom,       1rem);
 
-    --que-shadow:              0 4px 6px rgba(0,0,0,0.08);
-    --que-shadow-lg:           0 8px 16px rgba(0,0,0,0.12);
-    --que-transition-duration: 0.3s;
-    --que-transition-func:     ease;
+    /* ---------- Тени ---------- */
+    --que-shadow:    var(--que-shadow-custom,    0 4px 6px rgba(0, 0, 0, 0.08));
+    --que-shadow-lg: var(--que-shadow-lg-custom, 0 8px 16px rgba(0, 0, 0, 0.12));
+
+    /* ---------- Тайминги ---------- */
+    --que-transition-duration: var(--que-transition-duration-custom, 0.3s);
+    --que-transition-func:     var(--que-transition-func-custom,     ease);
 }
 
 /* ============================================================
-   СЛОЙ 2 — мост к QU (не трогаешь)
+   СЛОЙ 2 — мост к QU, через -custom-паттерн
+   Читает уже разрешённые --que-* (слой 1), сам резолвится на :root.
+   Оверрайд — через --<имя>-custom, порядок загрузки не важен.
    ============================================================ */
-:root {
-    --que-primary-hover: color-mix(in srgb, var(--que-primary), black 10%);
-    --que-primary-soft:  color-mix(in srgb, var(--que-primary) 10%, transparent);
+   :root,
+   [data-qu-theme] {
+    /* ---------- Производные от primary ---------- */
+    --que-primary-hover: var(--que-primary-hover-custom,
+                           color-mix(in srgb, var(--que-primary), black 10%));
+    --que-primary-soft:  var(--que-primary-soft-custom,
+                           color-mix(in srgb, var(--que-primary) 10%, transparent));
 
-    --que-link:       var(--que-primary);
-    --que-link-hover: var(--que-primary-hover);
+    --que-link:       var(--que-link-custom,       var(--que-primary));
+    --que-link-hover: var(--que-link-hover-custom, var(--que-primary-hover));
 
-    --que-focus-ring: 0 0 0 3px color-mix(in srgb, var(--que-primary) 25%, transparent);
+    --que-focus-ring: var(--que-focus-ring-custom,
+                         0 0 0 3px color-mix(in srgb, var(--que-primary) 25%, transparent));
 
-    --qu-color-bg:            var(--que-bg);
-    --qu-color-bg-soft:       var(--que-bg-soft);
-    --qu-color-bg-hover:      var(--que-bg-soft);
-    --qu-color-bg-strong:     var(--que-bg-strong);
-    --qu-color-text:          var(--que-text);
-    --qu-color-text-muted:    var(--que-text-muted);
-    --qu-color-text-soft:     var(--que-text-soft);
-    --qu-color-border:        var(--que-border);
-    --qu-color-border-hover:  var(--que-border-hover);
-    --qu-color-border-active: var(--que-border-active);
-    --qu-color-backdrop:      var(--que-backdrop);
-    --qu-color-on-accent:     var(--que-on-accent);
+    /* ---------- --qu-color-* : базовые ---------- */
+    --qu-color-bg:            var(--qu-color-bg-custom,            var(--que-bg));
+    --qu-color-bg-soft:       var(--qu-color-bg-soft-custom,       var(--que-bg-soft));
+    --qu-color-bg-hover:      var(--qu-color-bg-hover-custom,      var(--que-bg-soft));
+    --qu-color-bg-strong:     var(--qu-color-bg-strong-custom,     var(--que-bg-strong));
+    --qu-color-text:          var(--qu-color-text-custom,          var(--que-text));
+    --qu-color-text-muted:    var(--qu-color-text-muted-custom,    var(--que-text-muted));
+    --qu-color-text-soft:     var(--qu-color-text-soft-custom,     var(--que-text-soft));
+    --qu-color-border:        var(--qu-color-border-custom,        var(--que-border));
+    --qu-color-border-hover:  var(--qu-color-border-hover-custom,  var(--que-border-hover));
+    --qu-color-border-active: var(--qu-color-border-active-custom, var(--que-border-active));
+    --qu-color-backdrop:      var(--qu-color-backdrop-custom,      var(--que-backdrop));
+    --qu-color-on-accent:     var(--qu-color-on-accent-custom,     var(--que-on-accent));
 
-    --qu-color-primary: var(--que-primary);
-    --qu-color-success: var(--que-success);
-    --qu-color-error:   var(--que-danger);
-    --qu-color-warning: var(--que-warning);
-    --qu-color-info:    var(--que-info);
+    /* ---------- --qu-color-* : палитра ---------- */
+    --qu-color-primary: var(--qu-color-primary-custom, var(--que-primary));
+    --qu-color-success: var(--qu-color-success-custom, var(--que-success));
+    --qu-color-error:   var(--qu-color-error-custom,   var(--que-danger));
+    --qu-color-warning: var(--qu-color-warning-custom, var(--que-warning));
+    --qu-color-info:    var(--qu-color-info-custom,    var(--que-info));
 
-    --qu-color-primary-bg: var(--que-primary-soft);
-    --qu-color-success-bg: color-mix(in srgb, var(--que-success) 10%, transparent);
-    --qu-color-error-bg:   color-mix(in srgb, var(--que-danger)  10%, transparent);
-    --qu-color-warning-bg: color-mix(in srgb, var(--que-warning) 10%, transparent);
-    --qu-color-info-bg:    color-mix(in srgb, var(--que-info)    10%, transparent);
+    /* ---------- --qu-color-* : мягкие фоны ---------- */
+    --qu-color-primary-bg: var(--qu-color-primary-bg-custom, var(--que-primary-soft));
+    --qu-color-success-bg: var(--qu-color-success-bg-custom,
+                              color-mix(in srgb, var(--que-success) 10%, transparent));
+    --qu-color-error-bg:   var(--qu-color-error-bg-custom,
+                              color-mix(in srgb, var(--que-danger)  10%, transparent));
+    --qu-color-warning-bg: var(--qu-color-warning-bg-custom,
+                              color-mix(in srgb, var(--que-warning) 10%, transparent));
+    --qu-color-info-bg:    var(--qu-color-info-bg-custom,
+                              color-mix(in srgb, var(--que-info)    10%, transparent));
 
-    --qu-color-link:       var(--que-link);
-    --qu-color-link-hover: var(--que-link-hover);
+    /* ---------- --qu-color-* : ссылки ---------- */
+    --qu-color-link:       var(--qu-color-link-custom,       var(--que-link));
+    --qu-color-link-hover: var(--qu-color-link-hover-custom, var(--que-link-hover));
 
-    --qu-font-family:    var(--que-font);
-    --qu-font-mono:      ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    --qu-font-size-base: var(--que-font-size);
-    --qu-line-height:    var(--que-line-height);
+    /* ---------- Типографика ---------- */
+    --qu-font-family:    var(--qu-font-family-custom,    var(--que-font));
+    --qu-font-mono:      var(--qu-font-mono-custom,
+                            ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+    --qu-font-size-base: var(--qu-font-size-base-custom, var(--que-font-size));
+    --qu-line-height:    var(--qu-line-height-custom,    var(--que-line-height));
 
-    --qu-radius:      var(--que-radius);
-    --qu-radius-sm:   var(--que-radius-sm);
-    --qu-radius-lg:   var(--que-radius-lg);
-    --qu-radius-full: var(--que-radius-full);
+    /* ---------- Радиусы ---------- */
+    --qu-radius:      var(--qu-radius-custom,      var(--que-radius));
+    --qu-radius-sm:   var(--qu-radius-sm-custom,   var(--que-radius-sm));
+    --qu-radius-lg:   var(--qu-radius-lg-custom,   var(--que-radius-lg));
+    --qu-radius-full: var(--qu-radius-full-custom, var(--que-radius-full));
 
-    --qu-shadow:              var(--que-shadow);
-    --qu-shadow-lg:           var(--que-shadow-lg);
-    --qu-focus-shadow:        var(--que-focus-ring);
-    --qu-transition-duration: var(--que-transition-duration);
-    --qu-transition-func:     var(--que-transition-func);
+    /* ---------- Тени / фокус ---------- */
+    --qu-shadow:       var(--qu-shadow-custom,       var(--que-shadow));
+    --qu-shadow-lg:    var(--qu-shadow-lg-custom,    var(--que-shadow-lg));
+    --qu-focus-shadow: var(--qu-focus-shadow-custom, var(--que-focus-ring));
 
-    --qu-space-xs: calc(var(--que-space) * 0.25);
-    --qu-space-sm: calc(var(--que-space) * 0.5);
-    --qu-space-md: var(--que-space);
-    --qu-space-lg: calc(var(--que-space) * 1.5);
-    --qu-space-xl: calc(var(--que-space) * 2);
+    /* ---------- Тайминги ---------- */
+    --qu-transition-duration: var(--qu-transition-duration-custom,
+                                var(--que-transition-duration));
+    --qu-transition-func:     var(--qu-transition-func-custom,
+                                var(--que-transition-func));
 
-    --qu-font-size-sm: calc(var(--que-font-size) * 0.875);
-    --qu-font-size-lg: calc(var(--que-font-size) * 1.25);
+    /* ---------- Шкала отступов / размеров ---------- */
+    --qu-space-xs: var(--qu-space-xs-custom, calc(var(--que-space) * 0.25));
+    --qu-space-sm: var(--qu-space-sm-custom, calc(var(--que-space) * 0.5));
+    --qu-space-md: var(--qu-space-md-custom, var(--que-space));
+    --qu-space-lg: var(--qu-space-lg-custom, calc(var(--que-space) * 1.5));
+    --qu-space-xl: var(--qu-space-xl-custom, calc(var(--que-space) * 2));
 
-    --qu-transition: var(--qu-transition-duration) var(--qu-transition-func);
-    --qu-z-loading: 1300000000;
+    --qu-font-size-sm: var(--qu-font-size-sm-custom, calc(var(--que-font-size) * 0.875));
+    --qu-font-size-lg: var(--qu-font-size-lg-custom, calc(var(--que-font-size) * 1.25));
+
+    --qu-transition: var(--qu-transition-custom,
+                        var(--que-transition-duration) var(--que-transition-func));
+    --qu-z-loading:  var(--qu-z-loading-custom, 1300000000);
 }
 
 html {
@@ -980,10 +1016,10 @@ html {
 
 dialog[open][data-qu-loading],
 body[data-qu-loading] {
-    --qu-loading-bg: var(--qu-color-backdrop);
-    --qu-loading-color: white;
-    --qu-loading-size: 64px;
-    --qu-loading-zindex: 1700000000;
+    --qu-loading-bg:     var(--qu-loading-bg-custom,     var(--qu-color-backdrop));
+    --qu-loading-color:  var(--qu-loading-color-custom,  white);
+    --qu-loading-size:   var(--qu-loading-size-custom,   64px);
+    --qu-loading-zindex: var(--qu-loading-zindex-custom, 1700000000);
     position: relative;
 }
 
