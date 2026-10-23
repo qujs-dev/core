@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.6
+ * Qu v1.3.7
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.6',
+        version: '1.3.7',
 
         bus: document,
 
@@ -155,6 +155,11 @@
 
         _globalScrollToken: 0,
         _scrollToGen: 0,
+
+        _styleLoadAttr: 'data-qu-style-loading',
+        _styleIdSeq: 0,
+        _styleResolvers: null,
+        _styleLoadListener: null,
 
         breakpoint: {
             get current() {
@@ -411,12 +416,13 @@
             if (typeof detail !== 'object') return detail;
             if (detail instanceof Node || detail === window || detail === document) return detail;
 
-            try {
-                return structuredClone(detail);
-            } catch (e) {
-                if (Array.isArray(detail)) return detail.slice();
-                return Object.assign({}, detail);
+            if (typeof structuredClone === 'function') {
+                try {
+                    return structuredClone(detail);
+                } catch (e) {}
             }
+            if (Array.isArray(detail)) return detail.slice();
+            return Object.assign({}, detail);
         },
 
         _touchEventCache: function (type, detail) {
@@ -1720,11 +1726,12 @@
                 return Promise.resolve(syncResponses);
             }
 
-            const allResults = Promise.allSettled(asyncPromises).then(function (results) {
-                return results.map(function (r) {
-                    return r.status === 'fulfilled' ? r.value : r.reason;
-                });
-            });
+            const allResults = Promise.all(asyncPromises.map(function (p) {
+                return Promise.resolve(p).then(
+                    function (v) { return v; },
+                    function (e) { return e; }
+                );
+            }));
 
             if (timeout > 0) {
                 const timeoutPromise = new Promise(function (_, reject) {
@@ -1871,6 +1878,7 @@
                             });
                             return;
                         }
+                        //console.log('wtf loop')
                         requestAnimationFrame(loop);
                     }
                     loop();
@@ -1883,6 +1891,7 @@
         
             const finish = () => {
                 if (settled) return;
+                if (lockEvents) this._unlockScrollEvents();
                 settled = true;
         
                 if (!isCurrent()) {
@@ -1890,7 +1899,6 @@
                     return;
                 }
         
-                if (lockEvents) this._unlockScrollEvents();
                 clearState();
         
                 this.trigger(element, 'qu:scrollto:after', {
@@ -2483,13 +2491,17 @@
 
             const promises = items.map(item => this._loadAssetWithQueue(item, assetOptions, results));
 
-            return Promise.allSettled(promises).then(() => {
+            const allSettled = (promises) =>
+                Promise.all(promises.map(p =>
+                    Promise.resolve(p).then(
+                        v => ({ status: 'fulfilled', value: v }),
+                        e => ({ status: 'rejected', reason: e })
+                    )
+                ));
+            
+            return allSettled(promises).then(() => {
                 this.debug('✅ [Qu] All assets loaded:', results);
-
-                this.trigger(this.bus, 'qu:assets:after', {
-                    detail: results
-                });
-
+                this.trigger(this.bus, 'qu:assets:after', { detail: results });
                 return results;
             });
         },
@@ -2552,13 +2564,17 @@
 
         _loadAssetInternal: function (item, options) {
             options = options || {};
-
+        
+            const STYLE_LOAD_ATTR = this._styleLoadAttr;
+        
             const force = options.force !== undefined ? options.force : false;
             let type = options.type !== undefined ? options.type : 'auto';
             const id = options.id !== undefined ? options.id : null;
             const insertBefore = options.insertBefore !== undefined ? options.insertBefore : null;
             const customHandler = options.customHandler !== undefined ? options.customHandler : null;
-
+            const media = options.media !== undefined ? options.media : null;
+        
+            // customOptions — всё, что не служебное loadAssets (crossorigin, integrity, nonce, ...)
             const customOptions = { ...options };
             delete customOptions.force;
             delete customOptions.type;
@@ -2566,57 +2582,115 @@
             delete customOptions.media;
             delete customOptions.insertBefore;
             delete customOptions.customHandler;
-
+        
+            // --- Глобальный делегированный слушатель load с capture: true ---
+            // Создаётся один раз. Ловит `load` от <link>, даже если onload на самом
+            // элементе потерялся (crbug 1521256). Событие load НЕ всплывает,
+            // но проходит фазу capture: window → document → documentElement → head → link.
+            // Слушатель на documentElement с capture:true получает его ДО target-фазы.
+            if (!this._styleLoadListener) {
+                const self = this;
+                this._styleLoadListener = function (e) {
+                    const target = e.target;
+                    if (!target || target.tagName !== 'LINK') return;
+        
+                    const styleId = target.getAttribute(STYLE_LOAD_ATTR);
+                    if (!styleId) return;
+        
+                    const resolver = self._styleResolvers && self._styleResolvers[styleId];
+                    if (resolver) {
+                        resolver.finish(true, resolver.item);
+                        delete self._styleResolvers[styleId];
+                    }
+                    // Атрибут убираем в любом случае — чтобы не поймать повторно
+                    target.removeAttribute(STYLE_LOAD_ATTR);
+                };
+                document.documentElement.addEventListener('load', this._styleLoadListener, true);
+            }
+        
+            // --- Хелперы ---
+        
+            // Безопасная проверка «уже в DOM» — без подстановки URL в селектор.
+            const isInDom = (tag, attr, value) => {
+                const nodes = document.querySelectorAll(tag + '[' + attr + ']');
+                for (let i = 0; i < nodes.length; i++) {
+                    if (nodes[i].getAttribute(attr) === value) return true;
+                }
+                return false;
+            };
+        
+            // Применяем customOptions (crossorigin, integrity, nonce, ...) к элементу
+            const applyCustomOptions = (el) => {
+                Object.entries(customOptions).forEach(([k, v]) => {
+                    try { el.setAttribute(k, v); } catch (e) {}
+                });
+            };
+        
+            // Вставка в DOM с учётом insertBefore
+            const appendElement = (el) => {
+                if (insertBefore) {
+                    const beforeElement = document.querySelector(insertBefore);
+                    if (beforeElement && beforeElement.parentNode) {
+                        beforeElement.parentNode.insertBefore(el, beforeElement);
+                        return;
+                    }
+                }
+                document.head.appendChild(el);
+            };
+        
+            // Удалить резолвер из _styleResolvers и снять атрибут с <link>
+            const cleanupStyle = (styleId, linkEl) => {
+                if (styleId && this._styleResolvers) delete this._styleResolvers[styleId];
+                if (linkEl && linkEl.getAttribute && linkEl.getAttribute(STYLE_LOAD_ATTR)) {
+                    linkEl.removeAttribute(STYLE_LOAD_ATTR);
+                }
+            };
+        
             return new Promise((resolve, reject) => {
                 const cacheKey = typeof item === 'string' ? item : JSON.stringify(item);
-
+        
+                // 1. Уже загружено
                 if (this._loadedAssets.has(cacheKey)) {
                     this.debug('📦 [Qu] Asset from cache:', item);
                     resolve(item);
                     return;
                 }
-
+        
+                // 2. Уже грузится — ЖДЁМ реального завершения (shared резолвится в finish)
                 if (this._loadingAssets.has(cacheKey)) {
                     this.debug('⏳ [Qu] Asset already loading:', item);
                     this._loadingAssets.get(cacheKey).then(resolve).catch(reject);
                     return;
                 }
-
+        
+                // 3. Автоопределение типа
                 if (type === 'auto' && typeof item === 'string') {
                     if (item.match(/\.(js|mjs)(\?.*)?$/i)) type = 'script';
                     else if (item.match(/\.(css)(\?.*)?$/i)) type = 'style';
                     else if (item.match(/\.(png|jpe?g|gif|svg|webp|ico)(\?.*)?$/i)) type = 'image';
                     else type = 'unknown';
                 }
-
-                if (type === 'custom' && customHandler) {
-                    customHandler(item, {
-                        resolve: resolve,
-                        reject: reject,
-                        debug: this.debug.bind(this)
-                    });
-                    return;
-                }
-
+        
+                // 4. Проверки «уже в DOM» (без force)
                 if (!force) {
-                    if (type === 'script' && document.querySelector('script[src="' + item + '"]')) {
+                    if (type === 'script' && isInDom('script', 'src', item)) {
                         this._loadedAssets.add(cacheKey);
                         this.debug('📦 [Qu] Asset already in DOM:', item);
                         resolve(item);
                         return;
                     }
-
-                    if (type === 'style' && document.querySelector('link[href="' + item + '"]')) {
+        
+                    if (type === 'style' &&
+                        (isInDom('link', 'href', item) || isInDom('style', 'data-qu-href', item))) {
                         this._loadedAssets.add(cacheKey);
                         this.debug('📦 [Qu] Asset already in DOM:', item);
                         resolve(item);
                         return;
                     }
-
+        
                     if (type === 'image') {
                         const testImg = new Image();
                         testImg.src = item;
-
                         if (testImg.complete) {
                             this._loadedAssets.add(cacheKey);
                             resolve(item);
@@ -2624,173 +2698,211 @@
                         }
                     }
                 }
-
+        
+                // 5. shared-промис в Map ДО работы с element — dedup для параллельных вызовов
+                let settled = false;
+                let sharedResolve, sharedReject;
+                const shared = new Promise((res, rej) => {
+                    sharedResolve = res;
+                    sharedReject = rej;
+                });
+                this._loadingAssets.set(cacheKey, shared);
+        
+                // Единая точка завершения: чистит _loadingAssets, наполняет _loadedAssets,
+                // резолвит shared (для ждущих) и outer (для текущего).
+                const finish = (ok, value) => {
+                    if (settled) return;
+                    settled = true;
+                    this._loadingAssets.delete(cacheKey);
+                    if (ok) {
+                        this._loadedAssets.add(cacheKey);
+                        sharedResolve(value);
+                        resolve(value);
+                    } else {
+                        sharedReject(value);
+                        reject(value);
+                    }
+                };
+        
+                // 6. Кастомный handler — через finish
+                if (type === 'custom' && customHandler) {
+                    customHandler(item, {
+                        resolve: (v) => finish(true, v !== undefined ? v : item),
+                        reject: (err) => finish(false, err),
+                        debug: this.debug.bind(this)
+                    });
+                    return;
+                }
+        
                 let element;
-
+                let styleId = null; // только для type === 'style'
+        
                 switch (type) {
                     case 'script':
                         element = document.createElement('script');
-                        element.src = item;
-                        element.async = true;
-
+        
+                        // Атрибуты ДО src (crossorigin/integrity должны быть на момент загрузки)
+                        applyCustomOptions(element);
+                        if (id) element.id = id;
+        
+                        // onload/onerror ДО src — иначе гонка с memory cache
                         element.onload = () => {
-                            this._loadedAssets.add(cacheKey);
-                            this._loadingAssets.delete(cacheKey);
                             this.debug('✅ [Qu] JS loaded: ' + item);
                             this.trigger(this.bus, 'qu:asset:loaded', {
                                 detail: { item: item, type: 'script', id: id }
                             });
-                            resolve(item);
+                            finish(true, item);
                         };
-
                         element.onerror = (error) => {
-                            this._loadingAssets.delete(cacheKey);
                             this.debug('❌ [Qu] JS failed: ' + item);
                             this.trigger(this.bus, 'qu:asset:error', {
                                 detail: { item: item, type: 'script', error: error, id: id }
                             });
-                            reject(error);
+                            finish(false, error);
                         };
+        
+                        element.async = true;
+                        element.src = item;
                         break;
-
-                    case 'style':
+        
+                    case 'style': {
                         const link = document.createElement('link');
                         element = link;
-                        link.rel = 'preload';
-                        link.as = 'style';
-                        link.href = item;
-
-                        let resolved = false;
-
+                        link.rel = 'stylesheet';
+        
+                        // media + customOptions + id — ДО href
+                        if (media) link.setAttribute('media', media);
+                        applyCustomOptions(link);
+                        if (id) link.id = id;
+        
+                        // Уникальный ID для делегированного слушателя
+                        styleId = 'qu-style-' + (++this._styleIdSeq) + '-' + Date.now();
+                        link.setAttribute(STYLE_LOAD_ATTR, styleId);
+        
+                        // Сохраняем finish+item для делегированного load
+                        if (!this._styleResolvers) this._styleResolvers = Object.create(null);
+                        this._styleResolvers[styleId] = { finish, item };
+        
+                        // onload/onerror на самом <link> — резерв на случай,
+                        // если capture-слушатель почему-то не поймал. С cleanup.
                         link.onload = () => {
-                            if (resolved) return;
-                            resolved = true;
-                            link.rel = 'stylesheet';
-                            this._loadedAssets.add(cacheKey);
-                            this._loadingAssets.delete(cacheKey);
-                            this.debug('✅ [Qu] CSS loaded: ' + item);
+                            cleanupStyle(styleId, link);
+                            this.debug('✅ [Qu] CSS loaded (onload): ' + item);
                             this.trigger(this.bus, 'qu:asset:loaded', {
                                 detail: { item: item, type: 'style', id: id }
                             });
-                            resolve(item);
+                            finish(true, item);
                         };
-
                         link.onerror = (error) => {
-                            if (resolved) return;
-                            resolved = true;
-                            this._loadingAssets.delete(cacheKey);
+                            cleanupStyle(styleId, link);
                             this.debug('❌ [Qu] CSS failed: ' + item);
                             this.trigger(this.bus, 'qu:asset:error', {
                                 detail: { item: item, type: 'style', error: error, id: id }
                             });
-                            reject(error);
+                            finish(false, error);
                         };
-
-                        //document.head.appendChild(link);
+        
+                        link.href = item;
                         break;
-
+                    }
+        
                     case 'image':
                         element = new Image();
-                        element.src = item;
-
+        
                         element.onload = () => {
-                            this._loadedAssets.add(cacheKey);
-                            this._loadingAssets.delete(cacheKey);
                             this.debug('✅ [Qu] Image loaded: ' + item);
                             this.trigger(this.bus, 'qu:asset:loaded', {
                                 detail: { item: item, type: 'image', id: id }
                             });
-                            resolve(item);
+                            finish(true, item);
                         };
-
                         element.onerror = (error) => {
-                            this._loadingAssets.delete(cacheKey);
-                            this.debug('❌ [Qu] Image failed: ' + item, error);
+                            this.debug('❌ [Qu] Image failed: ' + item);
                             this.trigger(this.bus, 'qu:asset:error', {
                                 detail: { item: item, type: 'image', error: error, id: id }
                             });
-                            reject(new Error('Failed to load image: ' + item));
+                            finish(false, new Error('Failed to load image: ' + item));
                         };
+        
+                        element.src = item;
                         break;
-
+        
                     case 'inline':
                         if (item.css) {
                             element = document.createElement('style');
                             if (id) element.id = id;
+                            if (media) element.setAttribute('media', media);
                             element.textContent = item.css;
                         } else if (item.js) {
                             element = document.createElement('script');
                             if (id) element.id = id;
                             element.textContent = item.js;
                         }
+                        if (element) applyCustomOptions(element);
                         break;
-
+        
                     default:
-                        reject(new Error('Unknown asset type: ' + type));
+                        finish(false, new Error('Unknown asset type: ' + type));
                         return;
                 }
-
+        
                 if (!element) {
-                    reject(new Error('Failed to create element for: ' + item));
+                    finish(false, new Error('Failed to create element for: ' + item));
                     return;
                 }
-
-                if (type === 'script' || type === 'style') {
-                    Object.entries(customOptions).forEach(function (entry) {
-                        element.setAttribute(entry[0], entry[1]);
-                    });
-                }
-
-                if (typeof item === 'string' && id && type !== 'image') {
-                    element.id = id;
-                }
-
-                if (type !== 'image' && type !== 'script' && type !== 'style') {
-                    const loadHandler = () => {
-                        this._loadedAssets.add(cacheKey);
-                        this._loadingAssets.delete(cacheKey);
-                        this.debug('✅ [Qu] Asset loaded: ' + item);
-                        this.trigger(this.bus, 'qu:asset:loaded', {
-                            detail: { item: item, type: 'inline', id: id }
-                        });
-                        resolve(item);
-                    };
-
-                    const errorHandler = (error) => {
-                        this._loadingAssets.delete(cacheKey);
-                        this.debug('❌ [Qu] Asset failed: ' + item, error);
-                        this.trigger(this.bus, 'qu:asset:error', {
-                            detail: { item: item, type: 'inline', error: error, id: id }
-                        });
-                        reject(new Error('Failed to load asset: ' + item));
-                    };
-
-                    if (type === 'inline') {
-                        loadHandler();
-                    } else {
-                        element.onload = loadHandler;
-                        element.onerror = errorHandler;
-                    }
-                }
-
-                const finalPromise = Promise.resolve(item);
-                this._loadingAssets.set(cacheKey, finalPromise);
-
+        
+                // 7. Append в DOM (image не нуждается в DOM для загрузки)
                 if (type !== 'image') {
-                    if (insertBefore) {
-                        const beforeElement = document.querySelector(insertBefore);
-
-                        if (beforeElement) {
-                            beforeElement.parentNode.insertBefore(element, beforeElement);
-                        } else {
-                            document.head.appendChild(element);
-                        }
-                    } else {
-                        document.head.appendChild(element);
+                    try {
+                        appendElement(element);
+                    } catch (e) {
+                        // Если <link> не вставился — резолвер и атрибут больше не нужны
+                        if (type === 'style' && styleId) cleanupStyle(styleId, element);
+                        finish(false, e);
+                        return;
                     }
+                }
+        
+                // 8. Inline резолвим ПОСЛЕ append — элемент уже в дереве
+                if (type === 'inline') {
+                    this.debug('✅ [Qu] Inline asset loaded');
+                    this.trigger(this.bus, 'qu:asset:loaded', {
+                        detail: { item: item, type: 'inline', id: id }
+                    });
+                    finish(true, item);
+                    return;
+                }
+        
+                // 9. CSS: rAF-fallback на случай, если НИ onload, НИ делегированный
+                //    load не сработали, но CSS реально применился (crbug 1521256
+                //    + Safari, который вообще не вызывает load для <link>).
+                //    Проверяем document.styleSheets — это детерминированная проверка
+                //    состояния, а не таймаут.
+                if (type === 'style') {
+                    const linkEl = element;
+                    const fullHref = new URL(item, document.baseURI).href;
+        
+                    const check = () => {
+                        if (settled) return;
+                    
+                        for (let i = 0; i < document.styleSheets.length; i++) {
+                            const s = document.styleSheets[i];
+                            if (s.href === fullHref || (s.ownerNode === linkEl && s.href)) {
+                                cleanupStyle(styleId, linkEl);
+                                this.trigger(this.bus, 'qu:asset:loaded', {
+                                    detail: { item: item, type: 'style', id: id }
+                                });
+                                finish(true, item);
+                                return;
+                            }
+                        }
+                        requestAnimationFrame(check);
+                    };
+                    requestAnimationFrame(check);
                 }
             });
         },
+
 
         deepSortObject: function (obj) {
             if (typeof obj !== 'object' || obj === null) return obj;
