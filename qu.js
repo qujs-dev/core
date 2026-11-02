@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.8
+ * Qu v1.3.9
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.8',
+        version: '1.3.9',
 
         bus: document,
 
