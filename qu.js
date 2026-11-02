@@ -1,5 +1,5 @@
 /*!
- * Qu v1.3.7
+ * Qu v1.3.8
  * Custom utilities
  *
  * @author Serge Galich <gaserge@mail.ru>
@@ -90,7 +90,7 @@
 
     const Qu = {
         name: 'Qu',
-        version: '1.3.7',
+        version: '1.3.8',
 
         bus: document,
 
@@ -125,6 +125,10 @@
         _loadingAssets: null,
         _loadedAssets: null,
         _assetQueues: null,
+        _styleLoadAttr: 'data-qu-style-loading',
+        _styleIdSeq: 0,
+        _styleResolvers: null,
+        _styleLoadListener: null,
 
         _breakpointQueries: {
             xs: 0,
@@ -156,10 +160,13 @@
         _globalScrollToken: 0,
         _scrollToGen: 0,
 
-        _styleLoadAttr: 'data-qu-style-loading',
-        _styleIdSeq: 0,
-        _styleResolvers: null,
-        _styleLoadListener: null,
+        _watcherMO: null,
+        _watcherSubs: [],
+        _watcherIOs: {},
+        _watcherSeen: new WeakSet(),
+        _watcherCombined: null,
+        _watcherScanScheduled: false,
+        _watcherMargin: '500px 0px',
 
         breakpoint: {
             get current() {
@@ -201,6 +208,46 @@
 
             onChange: function (callback) {
                 return Qu.when(callback, 'qu:breakpoint:change');
+            }
+        },
+
+        watcher: {
+            on: function (sel, cb, opts) {
+                opts = opts || {};
+                var hasMargin = 'margin' in opts;
+
+                var sub = {
+                    sel: sel,
+                    cb: cb,
+                    margin: hasMargin ? opts.margin : Qu._watcherMargin,
+                    once: opts.once === true,
+                    repeat: opts.repeat === true,
+                    skipExisting: opts.skipExisting === true,
+                    _els: [],
+                    _fired: false
+                };
+
+                Qu._watcherSubs.push(sub);
+                Qu._watcherCombined = null;
+                Qu._watcherScheduleScan();
+                Qu._watcherEnsureMO();
+
+                Qu.debug('👁️ [Qu.watcher] on:', sel, sub.margin,
+                    sub.once ? '(once)' : '',
+                    sub.repeat ? '(repeat)' : '',
+                    sub.skipExisting ? '(skip-existing)' : '');
+
+                return sub;
+            },
+
+            off: function (sub) {
+                if (!sub) return;
+                var i = Qu._watcherSubs.indexOf(sub);
+                if (i !== -1) {
+                    Qu._watcherSubs.splice(i, 1);
+                    Qu._watcherCombined = null;
+                    Qu.debug('👁️ [Qu.watcher] off:', sub.sel);
+                }
             }
         },
 
@@ -374,6 +421,120 @@
                     detail: { previous: old, current: active }
                 });
             }
+        },
+
+        _watcherIO: function (m) {
+            var self = this;
+            return self._watcherIOs[m] || (self._watcherIOs[m] = new IntersectionObserver(function (es) {
+                for (var i = 0; i < es.length; i++) {
+                    if (!es[i].isIntersecting) continue;
+                    var el = es[i].target;
+                    var cb = el._qwatch;
+                    var sub = el._qwatchSub;
+        
+                    // once: снять ВСЕХ этого sub с IO после первого срабатывания
+                    if (sub && sub.once) {
+                        sub._fired = true;
+                        for (var k = 0; k < sub._els.length; k++) {
+                            var other = sub._els[k];
+                            self._watcherIOs[m].unobserve(other);
+                            other._qwatch = null;
+                            other._qwatchSub = null;
+                        }
+                        sub._els = [];
+                        self._watcherIOs[m].unobserve(el);
+                        el._qwatch = null;
+                        el._qwatchSub = null;
+                        if (cb) cb(el);
+                        continue;
+                    }
+        
+                    // repeat: не отписываемся, срабатывает каждый раз при входе
+                    if (sub && sub.repeat) {
+                        if (cb) cb(el);
+                        continue;
+                    }
+        
+                    // по умолчанию: себя отписать, сработать один раз
+                    self._watcherIOs[m].unobserve(el);
+                    el._qwatch = null;
+                    el._qwatchSub = null;
+                    if (cb) cb(el);
+                }
+            }, { rootMargin: m }));
+        },
+
+        _watcherWatch: function (el, cb, m, sub) {
+            if (sub && sub.once && sub._fired) return;
+            if (this._watcherSeen.has(el)) return;
+            this._watcherSeen.add(el);
+
+            if (!m || !window.IntersectionObserver) {
+                cb(el);
+                return;
+            }
+
+            el._qwatch = cb;
+            el._qwatchSub = sub;
+            if (sub && sub.once && sub._els) sub._els.push(el);
+            this._watcherIO(m).observe(el);
+        },
+
+        _watcherScan: function (node, isInitial) {
+            if (!node || node.nodeType !== 1) return;
+            var subs = this._watcherSubs;
+            if (!subs.length) return;
+
+            if (!this._watcherCombined) {
+                var parts = [];
+                for (var p = 0; p < subs.length; p++) parts.push(subs[p].sel);
+                this._watcherCombined = parts.join(',');
+            }
+
+            var combined = this._watcherCombined;
+            var matched = [];
+
+            if (node.matches && node.matches(combined)) matched.push(node);
+            if (node.querySelectorAll) {
+                var found = node.querySelectorAll(combined);
+                for (var i = 0; i < found.length; i++) matched.push(found[i]);
+            }
+
+            for (var j = 0; j < matched.length; j++) {
+                var el = matched[j];
+                for (var s = 0; s < subs.length; s++) {
+                    var sub = subs[s];
+                    if (sub.skipExisting && isInitial) continue;
+                    if (el.matches(sub.sel)) {
+                        this._watcherWatch(el, sub.cb, sub.margin, sub);
+                    }
+                }
+            }
+        },
+
+        _watcherScheduleScan: function () {
+            if (this._watcherScanScheduled) return;
+            this._watcherScanScheduled = true;
+
+            var self = this;
+            Promise.resolve().then(function () {
+                self._watcherScanScheduled = false;
+                self._watcherScan(document.body || document.documentElement, true);
+            });
+        },
+
+        _watcherEnsureMO: function () {
+            if (this._watcherMO) return;
+            var self = this;
+            this._watcherMO = new MutationObserver(function (ms) {
+                for (var i = 0; i < ms.length; i++) {
+                    var added = ms[i].addedNodes;
+                    for (var j = 0; j < added.length; j++) {
+                        self._watcherScan(added[j]);
+                    }
+                }
+            });
+            this._watcherMO.observe(document.documentElement, { childList: true, subtree: true });
         },
 
         parents: function (el, selector) {
@@ -2549,7 +2710,7 @@
                         .catch(error => {
                             results.errors++;
                             reject(error);
-                            throw error;
+                            //throw error;
                         })
                         .finally(() => {
                             queue.shift();
